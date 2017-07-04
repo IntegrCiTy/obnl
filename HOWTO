@@ -1,0 +1,12 @@
+OBNL is a full python project thus as long as Python is installed on your
+system you can install it by moving in the root folder (the folder this README
+file should be) and run:
+
+    python setup.py install
+
+In some systems you need Administrator right to run this command.
+
+Warning: OBNL requires these packages to be used in full:
+
+ * pika
+ * protobuf
