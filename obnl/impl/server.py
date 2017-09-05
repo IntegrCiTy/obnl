@@ -1,5 +1,6 @@
 import sys
 import json
+import logging
 
 from obnl.impl.node import Node
 from obnl.impl.loaders import JSONLoader
@@ -19,6 +20,15 @@ class Scheduler(Node):
         :param schedule_file: a file containing schedule blocks
         """
         super(Scheduler, self).__init__(host, Node.SCHEDULER_NAME)
+
+        self._logger = logging.getLogger(__name__)
+        self._logger.setLevel(logging.INFO)
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        ch.setFormatter(formatter)
+        self._logger.addHandler(ch)
+
         self._current_step = 0
         self._current_block = 0
 
@@ -27,6 +37,8 @@ class Scheduler(Node):
         self._links = {}
 
         self._channel.exchange_declare(exchange=Node.SIMULATION_NODE_EXCHANGE + self._name)
+
+        self._logger.info("Waiting for connection...")
 
         self._steps, self._blocks = self._load_data(config_file, schedule_file)
 
@@ -130,7 +142,9 @@ class Scheduler(Node):
 
         if m.details.Is(SimulatorConnection.DESCRIPTOR):
             self._simulator_connection(m, props.reply_to)
+            self._logger.info("Simulator '"+m.node_name+"' is connected.")
             if len(self._connected) == sum([len(b) for b in self._blocks]):
+                self._logger.info("Start simulation.")
                 self._current_time += self._steps[self._current_step]
                 self._update_time()
 
