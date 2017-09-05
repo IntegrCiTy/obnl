@@ -1,5 +1,6 @@
 import sys
 import pika
+import logging
 
 from obnl.impl.message import MetaMessage, AttributeMessage, SimulatorConnection, NextStep, SchedulerConnection, Quit
 
@@ -39,17 +40,34 @@ class Node(object):
         :param host: the connection to AMQP
         :param name: the id of the Node
         """
+        self._name = name
+
+        self._logger = logging.getLogger(__name__)
+        self._logger.setLevel(logging.INFO)
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        ch.setFormatter(formatter)
+        self._logger.addHandler(ch)
+
+        self._logger.info(self.name+" is connecting...")
+
         connection = pika.BlockingConnection(pika.ConnectionParameters(host=host))
         self._channel = connection.channel()
-        self._name = name
+
+        self._logger.info(self.name+" is connected!")
 
         self._simulation_queue = self._channel.queue_declare(queue=Node.SIMULATION_NODE_QUEUE + self._name)
         self._simulation_exchange = self._channel.exchange_declare(exchange=Node.SIMULATION_NODE_EXCHANGE + self._name)
+
+        self._logger.info(self.name+" Queues are created.")
 
         self._channel.basic_consume(self.on_simulation_message,
                                     consumer_tag='obnl_node_' + self._name + '_simulation',
                                     queue=self._simulation_queue.method.queue,
                                     no_ack=True)
+        self._logger.info(self.name+" Consuming...")
+
 
     @property
     def name(self):
@@ -132,6 +150,14 @@ class ClientNode(Node):
 
     def __init__(self, host, name, api, input_attributes=None, output_attributes=None, is_first=False):
         super(ClientNode, self).__init__(host, name)
+
+        self._logger = logging.getLogger(__name__)
+        self._logger.setLevel(logging.INFO)
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        ch.setFormatter(formatter)
+        self._logger.addHandler(ch)
 
         # Local communication
         self._local_queue = self._channel.queue_declare(queue=Node.LOCAL_NODE_QUEUE + self._name)
