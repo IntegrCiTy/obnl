@@ -1,13 +1,14 @@
 import sys
 import pika
 import logging
+import logging.handlers
 
 from obnl.impl.message import MetaMessage, AttributeMessage, SimulatorConnection, NextStep, SchedulerConnection, Quit
 
 
 class Node(object):
     """
-    This is the base class for all Nodes of the system
+    This is the base class for all Nodes of the system. Improvement 
     """
 
     SCHEDULER_NAME = 'scheduler'
@@ -30,6 +31,11 @@ class Node(object):
     UPDATE_ROUTING = 'obnl.update.block.'
     """Base of every routing key for block messages (followed by the number/position of the block)"""
 
+    LOGGER = logging.getLogger(__name__)
+
+    DEFAULT_LOGGING_FORMAT = '%(levelname)s - %(asctime)s - %(message)s'
+    """The default logging format using standard logging library"""
+
     def __init__(self, host, name):
         """
         The constructor creates the 3 main queues
@@ -42,32 +48,22 @@ class Node(object):
         """
         self._name = name
 
-        self._logger = logging.getLogger(__name__)
-        self._logger.setLevel(logging.INFO)
-        ch = logging.StreamHandler()
-        ch.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        ch.setFormatter(formatter)
-        self._logger.addHandler(ch)
-
-        self._logger.info(self.name+" is connecting...")
+        Node.LOGGER.debug(self.name+" connecting to AMQP server...")
 
         connection = pika.BlockingConnection(pika.ConnectionParameters(host=host))
         self._channel = connection.channel()
 
-        self._logger.info(self.name+" is connected!")
+        Node.LOGGER.info(self.name+" connected!")
 
         self._simulation_queue = self._channel.queue_declare(queue=Node.SIMULATION_NODE_QUEUE + self._name)
         self._simulation_exchange = self._channel.exchange_declare(exchange=Node.SIMULATION_NODE_EXCHANGE + self._name)
 
-        self._logger.info(self.name+" Queues are created.")
+        Node.LOGGER.debug(self.name+" queues are created.")
 
         self._channel.basic_consume(self.on_simulation_message,
                                     consumer_tag='obnl_node_' + self._name + '_simulation',
                                     queue=self._simulation_queue.method.queue,
                                     no_ack=True)
-        self._logger.info(self.name+" Consuming...")
-
 
     @property
     def name(self):
@@ -82,6 +78,7 @@ class Node(object):
         Starts listening.
         """
         self._channel.start_consuming()
+        Node.LOGGER.debug("Start consuming.")
 
     def on_local_message(self, ch, method, props, body):
         """
@@ -145,19 +142,15 @@ class Node(object):
         self.send(Node.SIMULATION_NODE_EXCHANGE + self._name,
                   routing, message, reply_to=reply_to)
 
+    @staticmethod
+    def add_handler(handler):
+        Node.LOGGER.addHandler(handler)
+
 
 class ClientNode(Node):
 
     def __init__(self, host, name, api, input_attributes=None, output_attributes=None, is_first=False):
         super(ClientNode, self).__init__(host, name)
-
-        self._logger = logging.getLogger(__name__)
-        self._logger.setLevel(logging.INFO)
-        ch = logging.StreamHandler()
-        ch.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        ch.setFormatter(formatter)
-        self._logger.addHandler(ch)
 
         # Local communication
         self._local_queue = self._channel.queue_declare(queue=Node.LOCAL_NODE_QUEUE + self._name)
@@ -240,6 +233,7 @@ class ClientNode(Node):
                      or not self._input_attributes
                      or len(self._input_values.keys()) == len(self._input_attributes)):
             # TODO: call updateX or updateY depending on the meta content
+            Node.LOGGER.debug(self.name+" step running.")
             self.step(self._current_time, self._time_step)
             self._next_step = False
             self._input_values.clear()
@@ -265,6 +259,7 @@ class ClientNode(Node):
             mm.details.Unpack(sc)
             self._links = dict(sc.attribute_links)
         elif mm.details.Is(Quit.DESCRIPTOR):
+            Node.LOGGER.info(self.name+" disconnected!")
             sys.exit(0)
 
     def on_data_message(self, ch, method, props, body):
