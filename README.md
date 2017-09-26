@@ -66,6 +66,7 @@ The OBNL Team is currently composed of:
  * Pablo Puerto (pablo.puerto@crem.ch)
  * Gillian Basso (gillian.basso@hevs.ch)
  * Jessen Page (jessen.page@hevs.ch)
+ * Edmund Widl (edmund.widl@ait.ac.at)
 
 
 Contacts
