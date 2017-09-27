@@ -119,14 +119,16 @@ class TestPackageScenarioDB( unittest.TestCase ) :
         self.assertEqual( read_scenario.links[ 'l3' ].input_port.variable_name, 'seta' )
 
 
-    def setUp(self):
+    def setUp( self ):
         self.tick = datetime.now()
 
-    def tearDown(self):
+
+    def tearDown( self ):
         self.tock = datetime.now()
         diff = self.tock - self.tick
         timing_msg = "\n[INFO] test took {0} ms\n"
         print( timing_msg.format( diff.microseconds / 1000 ) )
+
 
 
 if __name__ == '__main__' :

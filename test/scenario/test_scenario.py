@@ -448,5 +448,129 @@ class TestPackageScenario( unittest.TestCase ) :
         self.assertEqual( scenario.links[ 'l3' ].input_port.variable_name, 'seta' )
 
 
+    def testScenario_createScenario_1( self ):
+        # Create scenario.
+        scenario = Scenario( 'TestScenario' )
+        scenario.create_and_add_node( 'A', input_variable_names = [ 'seta' ], output_variable_names = [ 'ta' ] )
+        scenario.create_and_add_node( 'B', output_variable_names = [ 'tb' ] )
+        scenario.create_and_add_node( 'C', input_variable_names = [ 't1', 't2' ], output_variable_names = [ 'setc' ] )
+        scenario.create_and_add_link( 'l1', from_node = 'A', output_variable_name = 'ta', to_node = 'C', input_variable_name = 't1' )
+        scenario.create_and_add_link( 'l2', from_node = 'B', output_variable_name = 'tb', to_node = 'C', input_variable_name = 't2' )
+        scenario.create_and_add_link( 'l3', from_node = 'C', output_variable_name = 'setc', to_node = 'A', input_variable_name = 'seta' )
+        # Read scenario from JSON-formatted file.
+
+        # Check node names.
+        node_names = scenario.get_node_names()
+        self.assertEqual( len( node_names ), 3 )
+        self.assertTrue( 'A' in node_names )
+        self.assertTrue( 'B' in node_names )
+        self.assertTrue( 'C' in node_names )
+
+        # Check link names.
+        link_names = scenario.get_link_names()
+        self.assertEqual( len( link_names ), 3 )
+        self.assertTrue( 'l1' in link_names )
+        self.assertTrue( 'l2' in link_names )
+        self.assertTrue( 'l3' in link_names )
+
+        # Check nodes.
+        self.assertTrue( scenario.nodes[ 'A' ].has_input_variable( 'seta' ) )
+        self.assertEqual( len( scenario.nodes[ 'A' ].input_ports ), 1 )
+        self.assertTrue( scenario.nodes[ 'A' ].has_output_variable( 'ta' ) )
+        self.assertEqual( len( scenario.nodes[ 'A' ].output_ports ), 1 )
+
+        self.assertEqual( len( scenario.nodes[ 'B' ].input_ports ), 0 )
+        self.assertTrue( scenario.nodes[ 'B' ].has_output_variable( 'tb' ) )
+        self.assertEqual( len( scenario.nodes[ 'B' ].output_ports ), 1 )
+
+        self.assertTrue( scenario.nodes[ 'C' ].has_input_variable( 't1' ) )
+        self.assertTrue( scenario.nodes[ 'C' ].has_input_variable( 't2' ) )
+        self.assertEqual( len( scenario.nodes[ 'C' ].input_ports ), 2 )
+        self.assertTrue( scenario.nodes[ 'C' ].has_output_variable( 'setc' ) )
+        self.assertEqual( len( scenario.nodes[ 'C' ].output_ports ), 1 )
+
+        # Check links.
+        self.assertEqual( scenario.links[ 'l1' ].output_port.node.node_name, 'A' )
+        self.assertEqual( scenario.links[ 'l1' ].output_port.variable_name, 'ta' )
+        self.assertEqual( scenario.links[ 'l1' ].input_port.node.node_name, 'C' )
+        self.assertEqual( scenario.links[ 'l1' ].input_port.variable_name, 't1' )
+
+        self.assertEqual( scenario.links[ 'l2' ].output_port.node.node_name, 'B' )
+        self.assertEqual( scenario.links[ 'l2' ].output_port.variable_name, 'tb' )
+        self.assertEqual( scenario.links[ 'l2' ].input_port.node.node_name, 'C' )
+        self.assertEqual( scenario.links[ 'l2' ].input_port.variable_name, 't2' )
+
+        self.assertEqual( scenario.links[ 'l3' ].output_port.node.node_name, 'C' )
+        self.assertEqual( scenario.links[ 'l3' ].output_port.variable_name, 'setc' )
+        self.assertEqual( scenario.links[ 'l3' ].input_port.node.node_name, 'A' )
+        self.assertEqual( scenario.links[ 'l3' ].input_port.variable_name, 'seta' )
+
+
+    def testScenario_createScenario_2( self ):
+        # Create scenario.
+        scenario = Scenario( 'TestScenario' )
+
+        nodeA = Node( 'A', input_variable_names = [ 'seta' ], output_variable_names = [ 'ta' ] )
+        nodeB = Node( 'B', output_variable_names = [ 'tb' ] )
+        nodeC = Node( 'C', input_variable_names = [ 't1', 't2' ], output_variable_names = [ 'setc' ] )
+
+        link1 = Link( 'l1', from_node = nodeA, output_variable_name = 'ta', to_node = nodeC, input_variable_name = 't1' )
+        link2 = Link( 'l2', from_node = nodeB, output_variable_name = 'tb', to_node = nodeC, input_variable_name = 't2' )
+        link3 = Link( 'l3', from_node = nodeC, output_variable_name = 'setc', to_node = nodeA, input_variable_name = 'seta' )
+
+        scenario.add_node( nodeA )
+        scenario.add_node( nodeB )
+        scenario.add_node( nodeC )
+
+        scenario.add_link( link1 )
+        scenario.add_link( link2 )
+        scenario.add_link( link3 )
+
+        # Check node names.
+        node_names = scenario.get_node_names()
+        self.assertEqual( len( node_names ), 3 )
+        self.assertTrue( 'A' in node_names )
+        self.assertTrue( 'B' in node_names )
+        self.assertTrue( 'C' in node_names )
+
+        # Check link names.
+        link_names = scenario.get_link_names()
+        self.assertEqual( len( link_names ), 3 )
+        self.assertTrue( 'l1' in link_names )
+        self.assertTrue( 'l2' in link_names )
+        self.assertTrue( 'l3' in link_names )
+
+        # Check nodes.
+        self.assertTrue( scenario.nodes[ 'A' ].has_input_variable( 'seta' ) )
+        self.assertEqual( len( scenario.nodes[ 'A' ].input_ports ), 1 )
+        self.assertTrue( scenario.nodes[ 'A' ].has_output_variable( 'ta' ) )
+        self.assertEqual( len( scenario.nodes[ 'A' ].output_ports ), 1 )
+
+        self.assertEqual( len( scenario.nodes[ 'B' ].input_ports ), 0 )
+        self.assertTrue( scenario.nodes[ 'B' ].has_output_variable( 'tb' ) )
+        self.assertEqual( len( scenario.nodes[ 'B' ].output_ports ), 1 )
+
+        self.assertTrue( scenario.nodes[ 'C' ].has_input_variable( 't1' ) )
+        self.assertTrue( scenario.nodes[ 'C' ].has_input_variable( 't2' ) )
+        self.assertEqual( len( scenario.nodes[ 'C' ].input_ports ), 2 )
+        self.assertTrue( scenario.nodes[ 'C' ].has_output_variable( 'setc' ) )
+        self.assertEqual( len( scenario.nodes[ 'C' ].output_ports ), 1 )
+
+        # Check links.
+        self.assertEqual( scenario.links[ 'l1' ].output_port.node.node_name, 'A' )
+        self.assertEqual( scenario.links[ 'l1' ].output_port.variable_name, 'ta' )
+        self.assertEqual( scenario.links[ 'l1' ].input_port.node.node_name, 'C' )
+        self.assertEqual( scenario.links[ 'l1' ].input_port.variable_name, 't1' )
+
+        self.assertEqual( scenario.links[ 'l2' ].output_port.node.node_name, 'B' )
+        self.assertEqual( scenario.links[ 'l2' ].output_port.variable_name, 'tb' )
+        self.assertEqual( scenario.links[ 'l2' ].input_port.node.node_name, 'C' )
+        self.assertEqual( scenario.links[ 'l2' ].input_port.variable_name, 't2' )
+
+        self.assertEqual( scenario.links[ 'l3' ].output_port.node.node_name, 'C' )
+        self.assertEqual( scenario.links[ 'l3' ].output_port.variable_name, 'setc' )
+        self.assertEqual( scenario.links[ 'l3' ].input_port.node.node_name, 'A' )
+        self.assertEqual( scenario.links[ 'l3' ].input_port.variable_name, 'seta' )
+
 if __name__ == '__main__' :
     unittest.main()

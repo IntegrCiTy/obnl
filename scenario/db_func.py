@@ -1,6 +1,13 @@
 from sqlalchemy.sql import func
 
 
+# def func_cleanup_schema():
+#     """
+#     Define function call to clean-up schema.
+#     """
+#     return func.sim_pkg.cleanup_schema()
+
+
 def func_insert_simulation( scenario ):
     """
     Define function call to insert simulation to database.

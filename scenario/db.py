@@ -153,6 +153,9 @@ def connect_to_db( connection_info ):
     """
     Connect to the database. Returns a tuple containing the corresponding engine and session.
     """
+    if not isinstance( connection_info, PostgreSQLConnectionInfo ):
+        raise TypeError( 'parameter \'connection_info\' must be of type \'PostgreSQLConnectionInfo\'' )
+
     # Construct connection string.
     db_connection_string = str()
 
