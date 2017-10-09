@@ -16,6 +16,13 @@ class ClientNode(object):
         return self._node_impl.name
 
     @property
+    def simulation(self):
+        """
+        :return: the simulation ID. Common to all nodes in a simulation (define by the scheduler)
+        """
+        return self._node_impl.simulation
+
+    @property
     def input_values(self):
         """
         

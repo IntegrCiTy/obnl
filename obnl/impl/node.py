@@ -47,6 +47,7 @@ class Node(object):
         :param name: the id of the Node
         """
         self._name = name
+        self._simulation = None
 
         Node.LOGGER.debug(self.name+" connecting to AMQP server...")
 
@@ -72,6 +73,10 @@ class Node(object):
         :return: the name of the Node 
         """
         return self._name
+
+    @property
+    def simulation(self):
+        return self._simulation
 
     def start(self):
         """
@@ -151,8 +156,6 @@ class ClientNode(Node):
 
     def __init__(self, host, name, api, input_attributes=None, output_attributes=None, is_first=False):
         super(ClientNode, self).__init__(host, name)
-
-        self._simulation = ""
 
         # Local communication
         self._local_queue = self._channel.queue_declare(queue=Node.LOCAL_NODE_QUEUE + self._name)
@@ -261,6 +264,7 @@ class ClientNode(Node):
             mm.details.Unpack(sc)
             self._simulation = sc.simulation
             self._links = dict(sc.attribute_links)
+            Node.LOGGER.debug(self.name + " connected to simulation '" + self.simulation+"'")
         elif mm.details.Is(Quit.DESCRIPTOR):
             Node.LOGGER.info(self.name+" disconnected!")
             sys.exit(0)
