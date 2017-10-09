@@ -22,9 +22,10 @@ class ClientTestNode(ClientNode):
             self.update_attribute(o, rv)
         print('=============')
 
+
 if __name__ == "__main__":
 
-    obnl.logger.activate_console_logging(logging.DEBUG)
+    obnl.logger.activate_console_logging(logging.INFO)
 
     a = ClientTestNode('localhost', 'A', output_attributes=['ta'], input_attributes=['seta'], is_first=True)
     b = ClientTestNode('localhost', 'B', output_attributes=['tb'])
