@@ -193,6 +193,10 @@ class ClientNode(Node):
                              si, reply_to=Node.SIMULATION_NODE_QUEUE + self.name)
 
     @property
+    def simulation(self):
+        return self._simulation
+
+    @property
     def input_values(self):
         return self._input_values
 
