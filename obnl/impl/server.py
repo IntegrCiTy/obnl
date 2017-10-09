@@ -1,5 +1,8 @@
 import sys
 import json
+import time
+import logging
+import logging.handlers
 
 from obnl.impl.node import Node
 from obnl.impl.loaders import JSONLoader
@@ -11,7 +14,8 @@ class Scheduler(Node):
     The Scheduler is a Node that manage the time flow.
     """
 
-    def __init__(self, host, config_file, schedule_file):
+    def __init__(self, host, config_file, schedule_file,
+                 log_level=logging.INFO, log_console=True, log_filename=''):
         """
         
         :param host: the AMQP host 
@@ -19,6 +23,7 @@ class Scheduler(Node):
         :param schedule_file: a file containing schedule blocks
         """
         super(Scheduler, self).__init__(host, Node.SCHEDULER_NAME)
+
         self._current_step = 0
         self._current_block = 0
 
@@ -26,7 +31,11 @@ class Scheduler(Node):
         self._sent = set()
         self._links = {}
 
+        self._begin_time = 0
+
         self._channel.exchange_declare(exchange=Node.SIMULATION_NODE_EXCHANGE + self._name)
+
+        Node.LOGGER.info("Waiting for connection...")
 
         self._steps, self._blocks = self._load_data(config_file, schedule_file)
 
@@ -111,6 +120,7 @@ class Scheduler(Node):
         ns = NextStep()
         ns.time_step = self._steps[self._current_step]
         ns.current_time = self._current_time
+        Node.LOGGER.debug("Current step is " + str(self._current_time))
 
         self.send_simulation(Node.UPDATE_ROUTING + str(self._current_block),
                              ns, reply_to=Node.SIMULATION_NODE_QUEUE + self.name)
@@ -130,7 +140,10 @@ class Scheduler(Node):
 
         if m.details.Is(SimulatorConnection.DESCRIPTOR):
             self._simulator_connection(m, props.reply_to)
+            Node.LOGGER.info("Simulator " + m.node_name + " is connected.")
             if len(self._connected) == sum([len(b) for b in self._blocks]):
+                Node.LOGGER.info("Start simulation.")
+                self._begin_time = time.time()
                 self._current_time += self._steps[self._current_step]
                 self._update_time()
 
@@ -146,6 +159,9 @@ class Scheduler(Node):
                     self._current_step += 1
                     if self._current_step >= len(self._steps):
                         self.broadcast_simulation(Quit())
+                        Node.LOGGER.info("Simulation finished. Execution time: " +
+                                         str(time.time() - self._begin_time)
+                                         + " seconds")
                         sys.exit(0)
                     else:
                         self._current_time += self._steps[self._current_step]

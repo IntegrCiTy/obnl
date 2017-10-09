@@ -1,4 +1,7 @@
 import random
+import logging
+
+import obnl.logger
 from obnl.client import ClientNode
 
 
@@ -19,15 +22,15 @@ class ClientTestNode(ClientNode):
             self.update_attribute(o, rv)
         print('=============')
 
+
 if __name__ == "__main__":
+
+    obnl.logger.activate_console_logging(logging.INFO)
 
     a = ClientTestNode('localhost', 'A', output_attributes=['ta'], input_attributes=['seta'], is_first=True)
     b = ClientTestNode('localhost', 'B', output_attributes=['tb'])
     c = ClientTestNode('localhost', 'C', input_attributes=['t1', 't2'], output_attributes=['setc'])
 
-    print('Start A')
     a.start()
-    print('Start B')
     b.start()
-    print('Start C')
     c.start()
