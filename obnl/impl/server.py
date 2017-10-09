@@ -24,6 +24,8 @@ class Scheduler(Node):
         """
         super(Scheduler, self).__init__(host, Node.SCHEDULER_NAME)
 
+        self._simulation = ""
+
         self._current_step = 0
         self._current_block = 0
 
@@ -52,6 +54,7 @@ class Scheduler(Node):
             schedule_data = json.loads(jsonfile.read())
             steps = schedule_data['steps']
             blocks = schedule_data['schedule']
+            self._simulation = schedule_data['simulation']
 
         # Currently only JSON can be loaded
         # Load all the Nodes and creates the associated links
@@ -173,6 +176,7 @@ class Scheduler(Node):
         self._connected.add(node_name)
 
         sc = SchedulerConnection()
+        sc.simulation = self._simulation
         if node_name in self._links:
             for k, v in self._links[node_name].items():
                 sc.attribute_links[k] = v

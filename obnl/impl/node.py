@@ -152,6 +152,8 @@ class ClientNode(Node):
     def __init__(self, host, name, api, input_attributes=None, output_attributes=None, is_first=False):
         super(ClientNode, self).__init__(host, name)
 
+        self._simulation = ""
+
         # Local communication
         self._local_queue = self._channel.queue_declare(queue=Node.LOCAL_NODE_QUEUE + self._name)
         self._local_exchange = self._channel.exchange_declare(exchange=Node.LOCAL_NODE_EXCHANGE + self._name)
@@ -257,6 +259,7 @@ class ClientNode(Node):
         elif mm.details.Is(SchedulerConnection.DESCRIPTOR):
             sc = SchedulerConnection()
             mm.details.Unpack(sc)
+            self._simulation = sc.simulation
             self._links = dict(sc.attribute_links)
         elif mm.details.Is(Quit.DESCRIPTOR):
             Node.LOGGER.info(self.name+" disconnected!")
