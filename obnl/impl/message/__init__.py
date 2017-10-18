@@ -14,4 +14,6 @@ only_protbuf_files = [f
 for opf in only_protbuf_files:
     importlib.import_module(__name__ + PACKAGE_SEPARATOR + os.path.splitext(opf)[0])
     temp = importlib.machinery.SourceFileLoader(opf, os.path.join(dir_path, opf)).load_module()
+    name = __name__
     globals().update(temp.__dict__)
+    __name__ = name
