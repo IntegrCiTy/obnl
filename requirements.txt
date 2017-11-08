@@ -2,3 +2,4 @@
 
 pika>=0.10
 protobuf>=3.0
+-e git://github.com/IntegrCiTy/connection-util#egg=connection-util

@@ -1,6 +1,3 @@
-include *.pyDuring the first development and tests, we realise that it was very complicated
-to match the requirement of OBN. Therefore we decide to realise a co-simulator based on
-OBN - an "OpenBuildNet Like" co-simulator.
-
+include *.py
 include *.json
 include requirements.txt

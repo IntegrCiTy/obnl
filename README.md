@@ -14,7 +14,7 @@ Table of Contents
 Foreword
 ===
 
-As OBNL uses AMQP/MQTT protocol (with pika), a server SHALL be running. If docker is 
+As OBNL uses RabbitMQ (with pika), a server SHALL be running. If docker is 
 installed the following command starts a RabbitMQ server:  
 
     docker run -d --hostname my-rabbit -p 5672:5672 --name some-rabbit rabbitmq:alpine
@@ -26,7 +26,7 @@ The main purpose of OBNL is simulator communication to simply realise a co-simul
 Latest Version
 ===
 You can find the latest version of OBNL on:
-    https://github.com/ppuertocrem/obnl
+    https://github.com/IntegrCiTy/obnl
 
 
 Installation
@@ -43,6 +43,7 @@ Warning: OBNL requires these packages to be used in full:
 
  * pika
  * protobuf
+ * connection-util (https://github.com/IntegrCiTy/connection-util)
 
 
 Documentation
