@@ -1,11 +1,12 @@
 from threading import Thread
+
 from obnl.impl.node import ClientNode as _ClientNodeImpl
 
 
 class ClientNode(object):
 
-    def __init__(self, host, name, input_attributes=None, output_attributes=None, is_first=False):
-        self._node_impl = _ClientNodeImpl(host, name, self, input_attributes, output_attributes, is_first)
+    def __init__(self, host, vhost, username, password, config_file, input_attributes=None, output_attributes=None, is_first=False):
+        self._node_impl = _ClientNodeImpl(host, vhost, username, password, self, config_file, input_attributes, output_attributes, is_first)
 
     @property
     def name(self):

@@ -1,0 +1,20 @@
+{
+  "name": "A",
+  "queues": {
+    "obnl.simulation.node.A": "on_simulation",
+    "obnl.local.node.A": "on_local",
+    "obnl.data.node.A": "on_data"
+  },
+  "exchanges": {
+    "obnl.local.node.A": {
+      "binding": [
+        "obnl.local.node.A"
+      ]
+    },
+    "obnl.simulation.node.A": {
+      "binding": [
+        "obnl.simulation.node.scheduler"
+      ]
+    }
+  }
+}

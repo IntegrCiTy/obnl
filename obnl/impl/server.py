@@ -1,11 +1,11 @@
-import sys
 import json
-import time
 import logging
 import logging.handlers
+import sys
+import time
 
-from obnl.impl.node import Node
 from obnl.impl.loaders import JSONLoader
+from obnl.impl.node import Node
 from obnl.impl.message import SimulatorConnection, NextStep, MetaMessage, SchedulerConnection, Quit
 
 
@@ -14,15 +14,18 @@ class Scheduler(Node):
     The Scheduler is a Node that manage the time flow.
     """
 
-    def __init__(self, host, config_file, schedule_file,
-                 log_level=logging.INFO, log_console=True, log_filename=''):
+    def __init__(self, host, vhost, username, password, config_file,
+                 simu_file, schedule_file,
+                 log_level=logging.INFO):
         """
         
         :param host: the AMQP host 
-        :param config_file: a file containing time steps
+        :param config_file: a file containing queues & exchanges
+        :param simu_file: a file containing connections
         :param schedule_file: a file containing schedule blocks
         """
-        super(Scheduler, self).__init__(host, Node.SCHEDULER_NAME)
+        self.activate_console_logging(log_level)
+        super(Scheduler, self).__init__(host, vhost, username, password, config_file)
 
         self._current_step = 0
         self._current_block = 0
@@ -33,11 +36,7 @@ class Scheduler(Node):
 
         self._begin_time = 0
 
-        self._channel.exchange_declare(exchange=Node.SIMULATION_NODE_EXCHANGE + self._name)
-
-        Node.LOGGER.info("Waiting for connection...")
-
-        self._steps, self._blocks = self._load_data(config_file, schedule_file)
+        self._steps, self._blocks = self._load_data(simu_file, schedule_file)
 
         self._current_time = 0
 
@@ -53,7 +52,7 @@ class Scheduler(Node):
             steps = schedule_data['steps']
             blocks = schedule_data['schedule']
             self._simulation = schedule_data['simulation']
-        Node.LOGGER.debug("Simulation '"+str(self.simulation)+"' loaded")
+        Scheduler.LOGGER.debug("Simulation '" + str(self.simulation) + "' loaded")
 
         # Currently only JSON can be loaded
         # Load all the Nodes and creates the associated links
@@ -79,19 +78,18 @@ class Scheduler(Node):
 
     def create_data_link(self, node_out, attr_out, node_in, attr_in):
         """
-        Creates and connects the attribute communication from Node to Node.
+        Creates and connects the attribute communication from Node to Scheduler.
 
         :param node_out: the Node sender name
         :param attr_out: the name of the attribute the Node want to communicate
         :param node_in: the Node receiver name
         :param attr_in: the name of the attribute from the Node receiver point of view
         """
-        self._channel.exchange_declare(exchange=Node.DATA_NODE_EXCHANGE + node_out)
-        self._channel.queue_declare(queue=Node.DATA_NODE_QUEUE + node_in)
-
-        self._channel.queue_bind(exchange=Node.DATA_NODE_EXCHANGE + node_out,
-                                 routing_key=Node.DATA_NODE_EXCHANGE + attr_out,
-                                 queue=Node.DATA_NODE_QUEUE + node_in)
+        self._channel.queue_declare(queue=Scheduler.DATA + node_in)
+        self._channel.exchange_declare(exchange=Scheduler.DATA + node_out)
+        self._channel.queue_bind(exchange=Scheduler.DATA + node_out,
+                                 routing_key=Scheduler.DATA + attr_out,
+                                 queue=Scheduler.DATA + node_in)
         if node_in not in self._links:
             self._links[node_in] = {}
         self._links[node_in][attr_out] = attr_in
@@ -103,17 +101,16 @@ class Scheduler(Node):
         :param node: the node to be connected to
         :param position: the position of the containing block
         """
-        self._channel.exchange_declare(exchange=Node.SIMULATION_NODE_EXCHANGE + self._name)
-        self._channel.queue_declare(queue=Node.SIMULATION_NODE_QUEUE + node)
-        self._channel.queue_bind(exchange=Node.SIMULATION_NODE_EXCHANGE + self._name,
-                                 routing_key=Node.UPDATE_ROUTING + str(position),
-                                 queue=Node.SIMULATION_NODE_QUEUE + node)
+        self._channel.queue_declare(queue=Scheduler.SIMULATION + node)
+        self._channel.exchange_declare(exchange=Scheduler.SIMULATION + self.name)
+        self._channel.queue_bind(exchange=Scheduler.SIMULATION + self.name,
+                                 routing_key=Scheduler.UPDATE_ROUTING + str(position),
+                                 queue=Scheduler.SIMULATION + node)
 
-        self._channel.exchange_declare(exchange=Node.SIMULATION_NODE_EXCHANGE + node)
-        self._channel.queue_declare(queue=Node.SIMULATION_NODE_QUEUE + self._name)
-        self._channel.queue_bind(exchange=Node.SIMULATION_NODE_EXCHANGE + node,
-                                 routing_key=Node.SIMULATION_NODE_EXCHANGE + self._name,
-                                 queue=Node.SIMULATION_NODE_QUEUE + self._name)
+        self._channel.queue_declare(queue=Scheduler.SIMULATION + self._name)
+        self._channel.queue_bind(exchange=Scheduler.SIMULATION + self.name,
+                                 routing_key=Scheduler.SIMULATION + self._name,
+                                 queue=Scheduler.SIMULATION + self._name)
 
     def _update_time(self):
         """
@@ -122,29 +119,23 @@ class Scheduler(Node):
         ns = NextStep()
         ns.time_step = self._steps[self._current_step]
         ns.current_time = self._current_time
-        Node.LOGGER.debug("Current step is " + str(self._current_time))
+        Scheduler.LOGGER.debug("Current step is " + str(self._current_time))
 
-        self.send_simulation(Node.UPDATE_ROUTING + str(self._current_block),
-                             ns, reply_to=Node.SIMULATION_NODE_QUEUE + self.name)
+        self.send_simulation(Scheduler.UPDATE_ROUTING + str(self._current_block),
+                             ns, reply_to=Scheduler.SIMULATION + self.name)
 
-    def on_local_message(self, ch, method, props, body):
+    def on_simulation(self, ch, method, props, body):
         """
-        Callback when a message come from this node. Never append with Scheduler
-        """
-        pass
-
-    def on_simulation_message(self, ch, method, props, body):
-        """
-        Callback when a message come from Node.
+        Callback when a message come from Scheduler.
         """
         m = MetaMessage()
         m.ParseFromString(body)
 
         if m.details.Is(SimulatorConnection.DESCRIPTOR):
             self._simulator_connection(m, props.reply_to)
-            Node.LOGGER.info("Simulator " + m.node_name + " is connected.")
+            Scheduler.LOGGER.info("Simulator " + m.node_name + " is connected.")
             if len(self._connected) == sum([len(b) for b in self._blocks]):
-                Node.LOGGER.info("Start simulation.")
+                Scheduler.LOGGER.info("Start simulation.")
                 self._begin_time = time.time()
                 self._current_time += self._steps[self._current_step]
                 self._update_time()
@@ -161,9 +152,9 @@ class Scheduler(Node):
                     self._current_step += 1
                     if self._current_step >= len(self._steps):
                         self.broadcast_simulation(Quit())
-                        Node.LOGGER.info("Simulation finished. Execution time: " +
-                                         str(time.time() - self._begin_time)
-                                         + " seconds")
+                        Scheduler.LOGGER.info("Simulation finished. Execution time: " +
+                                              str(time.time() - self._begin_time)
+                                              + " seconds")
                         sys.exit(0)
                     else:
                         self._current_time += self._steps[self._current_step]
@@ -182,15 +173,7 @@ class Scheduler(Node):
 
         self.reply_to(reply_to, sc)
 
-    def on_data_message(self, ch, method, props, body):
-        """
-        Displays message receive from the data queue.
-        """
-        pass
-
     def broadcast_simulation(self, message, reply_to=None):
 
         for block_id in range(len(self._blocks)):
-            self.send_simulation(Node.UPDATE_ROUTING + str(block_id),
-                                 message, reply_to=reply_to)
-
+            self.send_simulation(Scheduler.UPDATE_ROUTING + str(block_id), message, reply_to=reply_to)

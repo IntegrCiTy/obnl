@@ -1,107 +1,42 @@
 import sys
-import pika
-import logging
-import logging.handlers
 
+from ict.connection.node import Node as ConnectionNode
 from obnl.impl.message import MetaMessage, AttributeMessage, SimulatorConnection, NextStep, SchedulerConnection, Quit
 
 
-class Node(object):
+class Node(ConnectionNode):
     """
     This is the base class for all Nodes of the system. Improvement 
     """
 
-    SCHEDULER_NAME = 'scheduler'
+    SCHEDULER_NAME = "scheduler"
 
-    LOCAL_NODE_QUEUE = 'obnl.local.node.'
-    """Base of every local queue (followed by the name of the Node)"""
-    LOCAL_NODE_EXCHANGE = 'obnl.local.node.'
-    """Base of every local exchange (followed by the name of the Node)"""
-
-    SIMULATION_NODE_QUEUE = 'obnl.simulation.node.'
-    """Base of every update queue (followed by the name of the Node)"""
-    SIMULATION_NODE_EXCHANGE = 'obnl.simulation.node.'
-    """Base of every update exchange (followed by the name of the Node)"""
-
-    DATA_NODE_QUEUE = 'obnl.data.node.'
-    """Base of every data queue (followed by the name of the Node)"""
-    DATA_NODE_EXCHANGE = 'obnl.data.node.'
-    """Base of every data/attr exchange (followed by the name of the Node)"""
+    SIMULATION = "obnl.simulation.node."
+    DATA = "obnl.data.node."
+    LOCAL = "obnl.local.node."
 
     UPDATE_ROUTING = 'obnl.update.block.'
     """Base of every routing key for block messages (followed by the number/position of the block)"""
 
-    LOGGER = logging.getLogger(__name__)
-
-    DEFAULT_LOGGING_FORMAT = '%(levelname)s - %(asctime)s - %(message)s'
-    """The default logging format using standard logging library"""
-
-    def __init__(self, host, name):
+    def __init__(self, host, vhost, username, password, config_file="obnl.json"):
         """
         The constructor creates the 3 main queues
         - general: To receive data with everyone
         - update: To receive data for the time management
         - data: To receive attribute update
 
-        :param host: the connection to AMQP
-        :param name: the id of the Node
+        :param host: the connection to RabbitMQ Server
+        :param vhost: the virtual host of RabbitMQ Server
+        :param username: the user connection
+        :param password: the password connection
+        :param config_file: the configuration file to generate queues & exchanges
         """
-        self._name = name
+        super().__init__(host, vhost, username, password, config_file)
         self._simulation = None
-
-        Node.LOGGER.debug(self.name+" connecting to AMQP server...")
-
-        connection = pika.BlockingConnection(pika.ConnectionParameters(host=host))
-        self._channel = connection.channel()
-
-        Node.LOGGER.info(self.name+" connected!")
-
-        self._simulation_queue = self._channel.queue_declare(queue=Node.SIMULATION_NODE_QUEUE + self._name)
-        self._simulation_exchange = self._channel.exchange_declare(exchange=Node.SIMULATION_NODE_EXCHANGE + self._name)
-
-        Node.LOGGER.debug(self.name+" queues are created.")
-
-        self._channel.basic_consume(self.on_simulation_message,
-                                    consumer_tag='obnl_node_' + self._name + '_simulation',
-                                    queue=self._simulation_queue.method.queue,
-                                    no_ack=True)
-
-    @property
-    def name(self):
-        """
-
-        :return: the name of the Node 
-        """
-        return self._name
 
     @property
     def simulation(self):
         return self._simulation
-
-    def start(self):
-        """
-        Starts listening.
-        """
-        self._channel.start_consuming()
-        Node.LOGGER.debug("Start consuming.")
-
-    def on_local_message(self, ch, method, props, body):
-        """
-        Callback when a message come from this node.
-        """
-        raise NotImplementedError('Abstract function call from '+str(self.__class__))
-
-    def on_simulation_message(self, ch, method, props, body):
-        """
-        Callback when a message come from another Node to inform about simulation.
-        """
-        raise NotImplementedError('Abstract function call from '+str(self.__class__))
-
-    def on_data_message(self, ch, method, props, body):
-        """
-        Callback when a message come from another Node to inform about data update.
-        """
-        raise NotImplementedError('Abstract function call from '+str(self.__class__))
 
     def send(self, exchange, routing, message, reply_to=None):
         """
@@ -116,10 +51,7 @@ class Node(object):
         mm.node_name = self._name
         mm.details.Pack(message)
 
-        self._channel.publish(exchange=exchange,
-                              routing_key=routing,
-                              properties=pika.BasicProperties(reply_to=reply_to),
-                              body=mm.SerializeToString())
+        super().send(exchange, routing, mm.SerializeToString(), reply_to)
 
     def reply_to(self, reply_to, message):
         """
@@ -135,7 +67,7 @@ class Node(object):
 
             m.details.Pack(message)
 
-            self._channel.publish(exchange='', routing_key=reply_to, body=m.SerializeToString())
+            super().send(exchange='', routing=reply_to, message=m.SerializeToString())
 
     def send_simulation(self, routing, message, reply_to=None):
         """
@@ -144,37 +76,14 @@ class Node(object):
         :param message: the protobuf message
         :param reply_to: the routing key to reply to
         """
-        self.send(Node.SIMULATION_NODE_EXCHANGE + self._name,
-                  routing, message, reply_to=reply_to)
-
-    @staticmethod
-    def add_handler(handler):
-        Node.LOGGER.addHandler(handler)
+        self.LOGGER.debug('-->' + routing)
+        self.send(Node.SIMULATION + self.name, routing, message, reply_to=reply_to)
 
 
 class ClientNode(Node):
 
-    def __init__(self, host, name, api, input_attributes=None, output_attributes=None, is_first=False):
-        super(ClientNode, self).__init__(host, name)
-
-        # Local communication
-        self._local_queue = self._channel.queue_declare(queue=Node.LOCAL_NODE_QUEUE + self._name)
-        self._local_exchange = self._channel.exchange_declare(exchange=Node.LOCAL_NODE_EXCHANGE + self._name)
-
-        self._channel.basic_consume(self.on_local_message,
-                                    consumer_tag='obnl_node_' + self._name + '_local',
-                                    queue=self._local_queue.method.queue,
-                                    no_ack=True)
-        self._channel.queue_bind(exchange=Node.LOCAL_NODE_EXCHANGE + self._name,
-                                 queue=Node.LOCAL_NODE_QUEUE + self._name)
-
-        # Data communication
-        self._data_queue = self._channel.queue_declare(queue=Node.DATA_NODE_QUEUE + self._name)
-
-        self._channel.basic_consume(self.on_data_message,
-                                    consumer_tag='obnl_node_' + self._name + '_data',
-                                    queue=self._data_queue.method.queue,
-                                    no_ack=True)
+    def __init__(self, host, vhost, username, password, api, config_file="client.json", input_attributes=None, output_attributes=None, is_first=False):
+        super(ClientNode, self).__init__(host, vhost, username, password, config_file)
 
         self._api_node = api
 
@@ -192,8 +101,7 @@ class ClientNode(Node):
         si = SimulatorConnection()
         si.type = SimulatorConnection.OTHER
 
-        self.send_simulation(Node.SIMULATION_NODE_EXCHANGE + Node.SCHEDULER_NAME,
-                             si, reply_to=Node.SIMULATION_NODE_QUEUE + self.name)
+        self.send_simulation(ClientNode.SIMULATION + 'scheduler', si, reply_to=ClientNode.SIMULATION + self.name)
 
     @property
     def input_values(self):
@@ -228,11 +136,11 @@ class ClientNode(Node):
         m.details.Pack(am)
 
         if self._output_attributes:
-            self._channel.publish(exchange=Node.DATA_NODE_EXCHANGE + self._name,
-                                  routing_key=Node.DATA_NODE_EXCHANGE + attr,
+            self._channel.publish(exchange=ClientNode.DATA + self._name,
+                                  routing_key=ClientNode.DATA + attr,
                                   body=m.SerializeToString())
 
-    def on_local_message(self, ch, method, props, body):
+    def on_local(self, ch, method, props, body):
         if self._next_step \
                 and (self._is_first
                      or not self._input_attributes
@@ -247,7 +155,7 @@ class ClientNode(Node):
             nm.time_step = self._time_step
             self.reply_to(self._reply_to, nm)
 
-    def on_simulation_message(self, ch, method, props, body):
+    def on_simulation(self, ch, method, props, body):
         mm = MetaMessage()
         mm.ParseFromString(body)
 
@@ -269,7 +177,7 @@ class ClientNode(Node):
             Node.LOGGER.info(self.name+" disconnected!")
             sys.exit(0)
 
-    def on_data_message(self, ch, method, props, body):
+    def on_data(self, ch, method, props, body):
         mm = MetaMessage()
         mm.ParseFromString(body)
 
@@ -285,9 +193,7 @@ class ClientNode(Node):
 
         :param message: a protobuf message 
         """
-        self.send(Node.LOCAL_NODE_EXCHANGE + self._name,
-                  Node.LOCAL_NODE_EXCHANGE + self._name,
-                  message)
+        self.send('', ClientNode.LOCAL + self._name, message)
 
     def send_scheduler(self, message):
         """
@@ -295,6 +201,4 @@ class ClientNode(Node):
 
         :param message: a protobuf message 
         """
-        self.send(Node.SIMULATION_NODE_EXCHANGE + self._name,
-                  Node.SIMULATION_NODE_EXCHANGE + Node.SCHEDULER_NAME,
-                  message)
+        self.send('', ClientNode.SIMULATION + Node.SCHEDULER_NAME, message)

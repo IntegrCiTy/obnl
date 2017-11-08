@@ -1,0 +1,11 @@
+{
+  "name": "scheduler",
+  "queues": {
+    "obnl.simulation.node.scheduler": "on_simulation"
+  },
+  "exchanges":{
+    "obnl.simulation.node.scheduler": {
+      "binding": []
+    }
+  }
+}

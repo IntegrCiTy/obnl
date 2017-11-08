@@ -1,14 +1,16 @@
-import random
 import logging
+import random
 
-import obnl.logger
 from obnl.client import ClientNode
 
 
 class ClientTestNode(ClientNode):
 
-    def __init__(self, host, name, input_attributes=None, output_attributes=None, is_first=False):
-        super(ClientTestNode, self).__init__(host, name, input_attributes, output_attributes, is_first)
+    def __init__(self, host, vhost, username, password, config_file,
+                 input_attributes=None, output_attributes=None, is_first=False):
+        super().__init__(host, vhost, username, password, config_file,
+                         input_attributes, output_attributes, is_first)
+        self._node_impl.activate_console_logging(logging.DEBUG)
 
     def step(self, current_time, time_step):
         print('----- '+self.name+' -----')
@@ -25,11 +27,12 @@ class ClientTestNode(ClientNode):
 
 if __name__ == "__main__":
 
-    obnl.logger.activate_console_logging(logging.INFO)
-
-    a = ClientTestNode('localhost', 'A', output_attributes=['ta'], input_attributes=['seta'], is_first=True)
-    b = ClientTestNode('localhost', 'B', output_attributes=['tb'])
-    c = ClientTestNode('localhost', 'C', input_attributes=['t1', 't2'], output_attributes=['setc'])
+    a = ClientTestNode('localhost', 'obnl_vhost', 'obnl', 'obnl', 'A.json',
+                       output_attributes=['ta'], input_attributes=['seta'], is_first=True)
+    b = ClientTestNode('localhost', 'obnl_vhost', 'obnl', 'obnl', 'B.json',
+                       output_attributes=['tb'])
+    c = ClientTestNode('localhost', 'obnl_vhost', 'obnl', 'obnl', 'C.json',
+                       input_attributes=['t1', 't2'], output_attributes=['setc'])
 
     a.start()
     b.start()
