@@ -4,9 +4,11 @@ import logging.handlers
 import sys
 import time
 
+from message.default_pb2 import MetaMessage
+from message.obnl.obnl_pb2 import *
+
 from obnl.impl.loaders import JSONLoader
 from obnl.impl.node import Node
-from obnl.impl.message import SimulatorConnection, NextStep, MetaMessage, SchedulerConnection, Quit
 
 
 class Scheduler(Node):

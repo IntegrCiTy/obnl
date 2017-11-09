@@ -1,7 +1,9 @@
 import sys
 
 from ict.connection.node import Node as ConnectionNode
-from obnl.impl.message import MetaMessage, AttributeMessage, SimulatorConnection, NextStep, SchedulerConnection, Quit
+
+from message.default_pb2 import MetaMessage
+from message.obnl.obnl_pb2 import *
 
 
 class Node(ConnectionNode):

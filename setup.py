@@ -8,7 +8,7 @@ setup(name=conf_dict['name'],
       maintainer=conf_dict['maintainer'],
       maintainer_email=conf_dict['maintainer_email'],
       url=conf_dict['url'],
-      version=conf_dict['release'],
+      version=conf_dict['version'],
       platforms=[platform.platform()],  # TODO indicate really tested platforms
 
       packages=find_packages(),
