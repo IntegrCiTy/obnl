@@ -25,9 +25,9 @@ def convert_protobuf_to_data(message):
         for node in data['nodes']:
             res['nodes'][node['name']] = {}
             if 'inputs' in node:
-                res['nodes'][node['inputs']] = node['inputs']
+                res['nodes'][node['name']] = node['inputs']
             if 'outputs' in node:
-                res['nodes'][node['outputs']] = node['outputs']
+                res['nodes'][node['name']] = node['outputs']
 
         return res
     elif type(message) is Schedule:
