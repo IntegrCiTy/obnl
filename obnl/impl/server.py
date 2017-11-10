@@ -84,6 +84,7 @@ class Scheduler(Node):
         :param node_in: the Node receiver name
         :param attr_in: the name of the attribute from the Node receiver point of view
         """
+        print(node_out, attr_out, node_in, attr_in)
         self._channel.queue_declare(queue=Scheduler.DATA + node_in)
         self._channel.exchange_declare(exchange=Scheduler.DATA + node_out)
         self._channel.queue_bind(exchange=Scheduler.DATA + node_out,
