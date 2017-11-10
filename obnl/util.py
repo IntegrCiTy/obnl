@@ -22,10 +22,12 @@ def convert_protobuf_to_data(message):
         res['links'] = data['links']
         res['nodes'] = {}
         for node in data['nodes']:
-            res['nodes'][node['name']] = {
-                'inputs': node['inputs'] if 'inputs' in node else None,
-                'outputs': node['outputs'] if 'outputs' in node else None
-            }
+            res['nodes'][node['name']] = {}
+            if 'inputs' in node:
+                res['inputs'] = node['inputs']
+            if 'outputs' in node:
+                res['outputs'] = node['outputs']
+
         return res
     elif type(message) is Schedule:
         return json.loads(json_format.MessageToJson(message, preserving_proto_field_name=True))
