@@ -18,15 +18,16 @@ def convert_json_file_to_data(json_file_location):
 def convert_protobuf_to_data(message):
     if type(message) is SimulationInit:
         data = json.loads(json_format.MessageToJson(message, preserving_proto_field_name=True))
+        print(data['links'])
         res = dict()
         res['links'] = data['links']
         res['nodes'] = {}
         for node in data['nodes']:
             res['nodes'][node['name']] = {}
             if 'inputs' in node:
-                res['inputs'] = node['inputs']
+                res['nodes'][node['inputs']] = node['inputs']
             if 'outputs' in node:
-                res['outputs'] = node['outputs']
+                res['nodes'][node['outputs']] = node['outputs']
 
         return res
     elif type(message) is Schedule:
