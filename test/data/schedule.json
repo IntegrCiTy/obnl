@@ -1,5 +1,5 @@
 {
-  "simulation": "demotest",
+  "simulation_name": "demotest",
   "schedule": [ ["A", "B"], ["C"] ],
   "steps": [1, 2, 5, 10, 5]
 }

@@ -75,10 +75,10 @@ class JSONLoader(Loader):
 
     def _prepare_links(self, links):
 
-        for name, data in links.items():
-            in_data = data["in"]
-            out_data = data["out"]
+        for data in links:
+            in_data = data["input"]
+            out_data = data["output"]
             in_node = self._find_in_nodes(in_data['node'])
             out_node = self._find_in_nodes(out_data['node'])
 
-            self._scheduler.create_data_link(out_node, out_data['attr'], in_node, in_data['attr'])
+            self._scheduler.create_data_link(out_node, out_data['attribute'], in_node, in_data['attribute'])

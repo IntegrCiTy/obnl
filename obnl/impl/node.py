@@ -157,6 +157,8 @@ class ClientNode(Node):
             nm.time_step = self._time_step
             self.reply_to(self._reply_to, nm)
 
+        self._channel.basic_ack(delivery_tag=method.delivery_tag)
+
     def on_simulation(self, ch, method, props, body):
         mm = MetaMessage()
         mm.ParseFromString(body)
@@ -177,7 +179,10 @@ class ClientNode(Node):
             Node.LOGGER.debug(self.name + " connected to simulation '" + self.simulation+"'")
         elif mm.details.Is(Quit.DESCRIPTOR):
             Node.LOGGER.info(self.name+" disconnected!")
+            self._channel.basic_ack(delivery_tag=method.delivery_tag)
             sys.exit(0)
+
+        self._channel.basic_ack(delivery_tag=method.delivery_tag)
 
     def on_data(self, ch, method, props, body):
         mm = MetaMessage()
@@ -188,6 +193,8 @@ class ClientNode(Node):
             mm.details.Unpack(am)
             self._input_values[self._links[am.attribute_name]] = am.attribute_value
         self.send_local(mm.details)
+
+        self._channel.basic_ack(delivery_tag=method.delivery_tag)
 
     def send_local(self, message):
         """

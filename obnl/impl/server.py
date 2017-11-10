@@ -50,7 +50,7 @@ class Scheduler(Node):
         # Currently only JSON can be loaded
         steps = schedule_data['steps']
         blocks = schedule_data['schedule']
-        self._simulation = schedule_data['simulation']
+        self._simulation = schedule_data['simulation_name']
         Scheduler.LOGGER.debug("Simulation '" + str(self.simulation) + "' loaded")
 
         # Currently only JSON can be loaded
@@ -154,11 +154,14 @@ class Scheduler(Node):
                         Scheduler.LOGGER.info("Simulation finished. Execution time: " +
                                               str(time.time() - self._begin_time)
                                               + " seconds")
+                        self._channel.basic_ack(delivery_tag=method.delivery_tag)
                         sys.exit(0)
                     else:
                         self._current_time += self._steps[self._current_step]
                 self._update_time()
                 self._sent.clear()
+
+        self._channel.basic_ack(delivery_tag=method.delivery_tag)
 
     def _simulator_connection(self, message, reply_to):
         node_name = message.node_name

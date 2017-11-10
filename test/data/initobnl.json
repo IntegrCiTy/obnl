@@ -13,36 +13,36 @@
       "outputs": ["setc"]
     }
   },
-  "links": {
-    "l1": {
-      "out": {
+  "links": [
+    {
+      "output": {
         "node":"A",
-        "attr": "ta"
+        "attribute": "ta"
       },
-      "in": {
+      "input": {
         "node":"C",
-        "attr": "t1"
+        "attribute": "t1"
       }
     },
-    "l2": {
-      "out": {
+    {
+      "output": {
         "node": "B",
-        "attr": "tb"
+        "attribute": "tb"
       },
-      "in": {
+      "input": {
         "node": "C",
-        "attr": "t2"
+        "attribute": "t2"
       }
     },
-    "l3": {
-      "out": {
+    {
+      "output": {
         "node":"C",
-        "attr": "setc"
+        "attribute": "setc"
       },
-      "in": {
+      "input": {
         "node":"A",
-        "attr": "seta"
+        "attribute": "seta"
       }
     }
-  }
+  ]
 }
