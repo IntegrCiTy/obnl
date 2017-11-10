@@ -56,17 +56,13 @@ class JSONLoader(Loader):
         }
     }   
     """
-    def __init__(self, scheduler, config_file):
+    def __init__(self, scheduler, config_data):
         super(JSONLoader, self).__init__(scheduler)
 
-        # load the data from json file
-        with open(config_file) as jsonfile:
-            config_data = json.loads(jsonfile.read())
-
-            # load the nodes
-            self._prepare_nodes(config_data['nodes'])
-            # then the links
-            self._prepare_links(config_data['links'])
+        # load the nodes
+        self._prepare_nodes(config_data['nodes'])
+        # then the links
+        self._prepare_links(config_data['links'])
 
     def _find_in_nodes(self, str_node):
         for node in self._nodes:

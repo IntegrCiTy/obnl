@@ -1,7 +1,6 @@
 import json
 import logging
 import logging.handlers
-import sys
 import time
 
 from message.default_pb2 import MetaMessage
@@ -17,7 +16,7 @@ class Scheduler(Node):
     """
 
     def __init__(self, host, vhost, username, password, config_file,
-                 simu_file, schedule_file,
+                 simu_data, schedule_data,
                  log_level=logging.INFO):
         """
         
@@ -38,27 +37,25 @@ class Scheduler(Node):
 
         self._begin_time = 0
 
-        self._steps, self._blocks = self._load_data(simu_file, schedule_file)
+        self._steps, self._blocks = self._load_data(simu_data, schedule_data)
 
         self._current_time = 0
 
-    def _load_data(self, config_file, schedule_file):
+    def _load_data(self, config_data, schedule_data):
         """
-        :param config_file: the file containing the structure
-        :param schedule_file: the file containing the schedule 
+        :param config_data: the structure as a dict
+        :param schedule_data: the schedule as a dict
         """
 
         # Currently only JSON can be loaded
-        with open(schedule_file) as jsonfile:
-            schedule_data = json.loads(jsonfile.read())
-            steps = schedule_data['steps']
-            blocks = schedule_data['schedule']
-            self._simulation = schedule_data['simulation']
+        steps = schedule_data['steps']
+        blocks = schedule_data['schedule']
+        self._simulation = schedule_data['simulation']
         Scheduler.LOGGER.debug("Simulation '" + str(self.simulation) + "' loaded")
 
         # Currently only JSON can be loaded
         # Load all the Nodes and creates the associated links
-        loader = JSONLoader(self, config_file)
+        loader = JSONLoader(self, config_data)
         # Connects the created Nodes to the update exchanger
         # using the schedule definition (blocks)
         # TODO: Should it be in Creator or Scheduler ???

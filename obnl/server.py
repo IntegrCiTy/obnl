@@ -1,6 +1,7 @@
 import argparse
 import logging
 
+from obnl.util import convert_json_file_to_data
 from obnl.impl.server import Scheduler
 
 if __name__ == "__main__":
@@ -12,6 +13,9 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    c = Scheduler(args.host, 'obnl_vhost', 'obnl', 'obnl', 'scheduler.json', args.config_file, args.schedule_file,
+    config_data = convert_json_file_to_data(args.config_file)
+    schedule_data = convert_json_file_to_data(args.schedule_file)
+
+    c = Scheduler(args.host, 'obnl_vhost', 'obnl', 'obnl', 'scheduler.json', config_data, schedule_data,
                   log_level=logging.DEBUG)
     c.start()
