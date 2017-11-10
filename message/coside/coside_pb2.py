@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='message/coside/coside.proto',
   package='backend.coside',
   syntax='proto3',
-  serialized_pb=_b('\n\x1bmessage/coside/coside.proto\x12\x0e\x62\x61\x63kend.coside\"\xe9\x01\n\x0fSimulationModel\x12\x39\n\x10the_parent_block\x18\x01 \x01(\x0e\x32\x1f.backend.coside.SimulationBlock\x12\x45\n\x08the_type\x18\x02 \x01(\x0e\x32\x33.backend.coside.SimulationModel.SimulationModelType\x12\x13\n\x0bstored_data\x18\x03 \x03(\t\"?\n\x13SimulationModelType\x12\t\n\x05OTHER\x10\x00\x12\r\n\tSIMPLE_HP\x10\x01\x12\x0e\n\nCOMPLEX_HP\x10\x02\"n\n\x0eSimulationInit\x12-\n\x05nodes\x18\x01 \x03(\x0b\x32\x1e.backend.coside.NodeSimulation\x12-\n\x05links\x18\x02 \x03(\x0b\x32\x1e.backend.coside.LinkSimulation\"o\n\x0eNodeSimulation\x12\x0c\n\x04name\x18\x01 \x01(\t\x12.\n\x05\x62lock\x18\x02 \x01(\x0e\x32\x1f.backend.coside.SimulationBlock\x12\x0e\n\x06inputs\x18\x03 \x03(\t\x12\x0f\n\x07outputs\x18\x04 \x03(\t\"y\n\x0eLinkSimulation\x12\x32\n\x05input\x18\x01 \x01(\x0b\x32#.backend.coside.ConnectorSimulation\x12\x33\n\x06output\x18\x02 \x01(\x0b\x32#.backend.coside.ConnectorSimulation\"6\n\x13\x43onnectorSimulation\x12\x0c\n\x04node\x18\x01 \x01(\t\x12\x11\n\tattribute\x18\x02 \x01(\t\"Z\n\x08Schedule\x12\x17\n\x0fsimulation_name\x18\x01 \x01(\t\x12&\n\x08schedule\x18\x02 \x03(\x0b\x32\x14.backend.coside.Step\x12\r\n\x05steps\x18\x03 \x03(\x02\"\x1a\n\x04Step\x12\x12\n\nnode_names\x18\x01 \x03(\t\"\x11\n\x0fStartSimulation*k\n\x0fSimulationBlock\x12\t\n\x05OTHER\x10\x00\x12\x0f\n\x0bHEAT_PUMP_1\x10\x01\x12\x0f\n\x0bHEAT_PUMP_2\x10\x02\x12\x13\n\x0fTHERMAL_NETWORK\x10\x03\x12\x16\n\x12\x45LECTRICAL_NETWORK\x10\x04\x62\x06proto3')
+  serialized_pb=_b('\n\x1bmessage/coside/coside.proto\x12\x0e\x62\x61\x63kend.coside\"\xe9\x01\n\x0fSimulationModel\x12\x39\n\x10the_parent_block\x18\x01 \x01(\x0e\x32\x1f.backend.coside.SimulationBlock\x12\x45\n\x08the_type\x18\x02 \x01(\x0e\x32\x33.backend.coside.SimulationModel.SimulationModelType\x12\x13\n\x0bstored_data\x18\x03 \x03(\t\"?\n\x13SimulationModelType\x12\t\n\x05OTHER\x10\x00\x12\r\n\tSIMPLE_HP\x10\x01\x12\x0e\n\nCOMPLEX_HP\x10\x02\"n\n\x0eSimulationInit\x12-\n\x05nodes\x18\x01 \x03(\x0b\x32\x1e.backend.coside.NodeSimulation\x12-\n\x05links\x18\x02 \x03(\x0b\x32\x1e.backend.coside.LinkSimulation\"o\n\x0eNodeSimulation\x12\x0c\n\x04name\x18\x01 \x01(\t\x12.\n\x05\x62lock\x18\x02 \x01(\x0e\x32\x1f.backend.coside.SimulationBlock\x12\x0e\n\x06inputs\x18\x03 \x03(\t\x12\x0f\n\x07outputs\x18\x04 \x03(\t\"y\n\x0eLinkSimulation\x12\x32\n\x05input\x18\x01 \x01(\x0b\x32#.backend.coside.ConnectorSimulation\x12\x33\n\x06output\x18\x02 \x01(\x0b\x32#.backend.coside.ConnectorSimulation\"6\n\x13\x43onnectorSimulation\x12\x0c\n\x04node\x18\x01 \x01(\t\x12\x11\n\tattribute\x18\x02 \x01(\t\"Z\n\x08Schedule\x12\x17\n\x0fsimulation_name\x18\x01 \x01(\t\x12&\n\x08schedule\x18\x02 \x03(\x0b\x32\x14.backend.coside.Step\x12\r\n\x05steps\x18\x03 \x03(\x02\"\x1a\n\x04Step\x12\x12\n\nnode_names\x18\x01 \x03(\t\"\x11\n\x0fStartSimulation*w\n\x0fSimulationBlock\x12\t\n\x05OTHER\x10\x00\x12\x0f\n\x0bHEAT_PUMP_1\x10\x01\x12\x0f\n\x0bHEAT_PUMP_2\x10\x02\x12\x13\n\x0fTHERMAL_NETWORK\x10\x03\x12\x16\n\x12\x45LECTRICAL_NETWORK\x10\x04\x12\n\n\x06STATIC\x10\x05\x62\x06proto3')
 )
 
 _SIMULATIONBLOCK = _descriptor.EnumDescriptor(
@@ -49,11 +49,15 @@ _SIMULATIONBLOCK = _descriptor.EnumDescriptor(
       name='ELECTRICAL_NETWORK', index=4, number=4,
       options=None,
       type=None),
+    _descriptor.EnumValueDescriptor(
+      name='STATIC', index=5, number=5,
+      options=None,
+      type=None),
   ],
   containing_type=None,
   options=None,
   serialized_start=826,
-  serialized_end=933,
+  serialized_end=945,
 )
 _sym_db.RegisterEnumDescriptor(_SIMULATIONBLOCK)
 
@@ -63,6 +67,7 @@ HEAT_PUMP_1 = 1
 HEAT_PUMP_2 = 2
 THERMAL_NETWORK = 3
 ELECTRICAL_NETWORK = 4
+STATIC = 5
 
 
 _SIMULATIONMODEL_SIMULATIONMODELTYPE = _descriptor.EnumDescriptor(
