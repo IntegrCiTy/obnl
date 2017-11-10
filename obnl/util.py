@@ -22,7 +22,7 @@ def convert_protobuf_to_data(message):
         res['links'] = data['links']
         res['nodes'] = {}
         for node in data['nodes']:
-            res['nodes'][node.name] = {
+            res['nodes'][node['name']] = {
                 'inputs': node['inputs'],
                 'outputs': node['outputs']
             }
