@@ -1,6 +1,6 @@
 from threading import Thread
 
-from obnl.impl.node import ClientNode as _ClientNodeImpl
+from obnl.core.impl.node import ClientNode as _ClientNodeImpl
 
 
 class ClientNode(object):

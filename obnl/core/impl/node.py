@@ -2,8 +2,8 @@ import sys
 
 from ict.connection.node import Node as ConnectionNode
 
-from message.default_pb2 import MetaMessage
-from message.obnl.obnl_pb2 import *
+from obnl.message.default_pb2 import MetaMessage
+from obnl.message.obnl.obnl_pb2 import *
 
 
 class Node(ConnectionNode):

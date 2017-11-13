@@ -1,13 +1,12 @@
-import json
 import logging
 import logging.handlers
 import time
 
-from message.default_pb2 import MetaMessage
-from message.obnl.obnl_pb2 import *
+from obnl.core.impl.loaders import JSONLoader
+from obnl.core.impl.node import Node
 
-from obnl.impl.loaders import JSONLoader
-from obnl.impl.node import Node
+from obnl.message.default_pb2 import MetaMessage
+from obnl.message.obnl.obnl_pb2 import *
 
 
 class Scheduler(Node):

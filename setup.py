@@ -1,27 +1,37 @@
-from setuptools import setup, find_packages
-from setuptools.config import read_configuration
+from setuptools import setup
 import platform
 
-conf_dict = read_configuration('./setup.cfg')
+setup(name='obnl-core',
+      version='0.3.0',
 
-setup(name=conf_dict['name'],
-      maintainer=conf_dict['maintainer'],
-      maintainer_email=conf_dict['maintainer_email'],
-      url=conf_dict['url'],
-      version=conf_dict['version'],
+      maintainer='The OBNL Team',
+      maintainer_email='gillian.basso@hevs.ch',
+
+      url='https://github.com/IntegrCiTy/obnl',
+      download_url='https://github.com/IntegrCiTy/obnl',
+
       platforms=[platform.platform()],  # TODO indicate really tested platforms
 
-      packages=find_packages(),
-      install_requires=conf_dict['required'],
+      install_requires=['pika', 'protobuf'],
 
-      # metadata
+      packages=['obnl.core', 'obnl.core.impl', 'obnl.message', 'obnl.message.obnl'],
 
-      description=conf_dict['summary'],
-      long_description=conf_dict['description_file'],
+      description='An open tool for co-simulation',
+      long_description='README.md',
 
-      license=conf_dict['licence'],
+      license='Apache License 2.0',
 
-      keywords=conf_dict['keywords'],
+      keywords='co-simulation,RabbitMQ',
 
-      classifiers=conf_dict['classifiers'],
+      classifiers=['Development Status :: 4 - Beta',
+                   'Environment :: Console',
+                   'Intended Audience :: Science/Research',
+                   'Intended Audience :: Developers',
+                   'License :: OSI Approved :: Apache License 2.0',
+                   'Natural Language :: English',
+                   'Operating System :: OS Independent',
+                   'Programming Language :: Python :: 3.5',
+                   'Topic :: Scientific/Engineering :: Energy Simulation'
+                   ],
+      zip_safe=False
       )

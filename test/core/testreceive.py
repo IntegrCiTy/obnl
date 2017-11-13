@@ -1,7 +1,7 @@
 import logging
 import random
 
-from obnl.client import ClientNode
+from obnl.core.client import ClientNode
 
 
 class ClientTestNode(ClientNode):
@@ -27,11 +27,11 @@ class ClientTestNode(ClientNode):
 
 if __name__ == "__main__":
 
-    a = ClientTestNode('localhost', 'obnl_vhost', 'obnl', 'obnl', 'A.json',
+    a = ClientTestNode('localhost', 'obnl_vhost', 'obnl', 'obnl', 'test/data/A.json',
                        output_attributes=['ta'], input_attributes=['seta'], is_first=True)
-    b = ClientTestNode('localhost', 'obnl_vhost', 'obnl', 'obnl', 'B.json',
+    b = ClientTestNode('localhost', 'obnl_vhost', 'obnl', 'obnl', 'test/data/B.json',
                        output_attributes=['tb'])
-    c = ClientTestNode('localhost', 'obnl_vhost', 'obnl', 'obnl', 'C.json',
+    c = ClientTestNode('localhost', 'obnl_vhost', 'obnl', 'obnl', 'test/data/C.json',
                        input_attributes=['t1', 't2'], output_attributes=['setc'])
 
     a.start()
