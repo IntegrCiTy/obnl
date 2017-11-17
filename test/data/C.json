@@ -1,17 +1,17 @@
 {
   "name": "C",
   "queues": {
-    "obnl.simulation.node.C": "on_simulation",
-    "obnl.local.node.C": "on_local",
-    "obnl.data.node.C": "on_data"
+    "obnl.simulation.node.": "on_simulation",
+    "obnl.local.node.": "on_local",
+    "obnl.data.node.": "on_data"
   },
   "exchanges": {
-    "obnl.local.node.C": {
+    "obnl.local.node.": {
       "binding": [
-        "obnl.local.node.C"
+        "obnl.local.node."
       ]
     },
-    "obnl.simulation.node.C": {
+    "obnl.simulation.node.": {
       "binding": [
         "obnl.simulation.node.scheduler"
       ]

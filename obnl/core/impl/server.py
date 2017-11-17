@@ -21,8 +21,8 @@ class Scheduler(Node):
         
         :param host: the AMQP host 
         :param config_file: a file containing queues & exchanges
-        :param simu_file: a file containing connections
-        :param schedule_file: a file containing schedule blocks
+        :param simu_data: a dict containing connections
+        :param schedule_data: a dict containing schedule blocks
         """
         self.activate_console_logging(log_level)
         super(Scheduler, self).__init__(host, vhost, username, password, config_file)
