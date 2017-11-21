@@ -14,7 +14,7 @@ setup(name='obnl-core',
 
       install_requires=['pika', 'protobuf'],
 
-      packages=['obnl.core', 'obnl.core.impl', 'obnl.message', 'obnl.message.obnl'],
+      packages=['obnl.core', 'obnl.core.impl'],
 
       description='An open tool for co-simulation',
       long_description='README.md',
