@@ -44,6 +44,7 @@ Warning: OBNL requires these packages to be used in full:
  * pika
  * protobuf
  * connection-util (https://github.com/IntegrCiTy/connection-util)
+ * ict-messaging (https://github.com/IntegrCiTy/messaging)
 
 
 Documentation
