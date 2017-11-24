@@ -7,10 +7,13 @@ from obnl.core.client import ClientNode
 class ClientTestNode(ClientNode):
 
     def __init__(self, host, vhost, username, password, config_file,
+                 data,
                  input_attributes=None, output_attributes=None, is_first=False):
         super().__init__(host, vhost, username, password, config_file,
                          input_attributes, output_attributes, is_first)
         self._node_impl.activate_console_logging(logging.DEBUG)
+        self._data = data
+        self._i = 0
 
     def step(self, current_time, time_step):
         print('----- '+self.name+' -----')
@@ -19,7 +22,7 @@ class ClientTestNode(ClientNode):
         print(self.name, self.input_values)
 
         for o in self.output_attributes:
-            rv = random.random()
+            rv = self._data[0 % len(self._data)]
             print(self.name, o, ':', rv)
             self.update_attribute(o, rv)
         print('=============')
@@ -27,11 +30,20 @@ class ClientTestNode(ClientNode):
 
 if __name__ == "__main__":
 
+    data_a = [1, 2, 3, 4]
+
+    data_b = [1.1, 2.2, 3.3, 4.4, 5.5]
+
+    data_c = [0.1, 0.2]
+
     a = ClientTestNode('localhost', 'obnl_vhost', 'obnl', 'obnl', 'test/data/A.json',
+                       data_a,
                        output_attributes=['ta'], input_attributes=['seta'], is_first=True)
     b = ClientTestNode('localhost', 'obnl_vhost', 'obnl', 'obnl', 'test/data/B.json',
+                       data_b,
                        output_attributes=['tb'])
     c = ClientTestNode('localhost', 'obnl_vhost', 'obnl', 'obnl', 'test/data/C.json',
+                       data_c,
                        input_attributes=['t1', 't2'], output_attributes=['setc'])
 
     a.start()
