@@ -63,7 +63,6 @@ class Node(ConnectionNode):
         if reply_to:
             m = MetaMessage()
             m.node_name = self._name
-            m.type = MetaMessage.ANSWER
 
             m.details.Pack(message)
 
@@ -99,7 +98,6 @@ class ClientNode(Node):
         self._output_attributes = output_attributes
 
         si = SimulatorConnection()
-        si.type = SimulatorConnection.OTHER
 
         self.send_simulation(ClientNode.SIMULATION + 'scheduler', si, reply_to=ClientNode.SIMULATION + self.name)
 
@@ -132,7 +130,6 @@ class ClientNode(Node):
 
         m = MetaMessage()
         m.node_name = self._name
-        m.type = MetaMessage.ATTRIBUTE
         m.details.Pack(am)
 
         if self._output_attributes:
