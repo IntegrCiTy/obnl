@@ -5,8 +5,8 @@ import time
 from obnl.core.impl.loaders import JSONLoader
 from obnl.core.impl.node import Node
 
-from ict.protobuf.default_pb2 import MetaMessage
-from ict.protobuf.obnl.core_pb2 import *
+from ict.protobuf.core_pb2 import MetaMessage
+from ict.protobuf.obnl_pb2 import *
 
 
 class Scheduler(Node):

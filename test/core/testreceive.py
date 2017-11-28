@@ -1,5 +1,4 @@
 import logging
-import random
 
 from obnl.core.client import ClientNode
 
