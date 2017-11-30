@@ -193,7 +193,7 @@ class ClientNode(Node):
 
             Node.LOGGER.debug("Received attribute: "+am.attribute_name+' ('+str(am.attribute_value)+')')
 
-            self._input_values[self._links[am.attribute_name]] = am.attribute_value
+            self._input_values[self._links[mm+'.'+am.attribute_name]] = am.attribute_value
         self.send_local(mm.details)
 
         self._channel.basic_ack(delivery_tag=method.delivery_tag)
