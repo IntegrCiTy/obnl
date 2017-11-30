@@ -35,13 +35,13 @@ if __name__ == "__main__":
 
     data_c = [0.1, 0.2]
 
-    a = ClientTestNode('localhost', 'obnl_vhost', 'obnl', 'obnl', 'test/data/A.json',
+    a = ClientTestNode('localhost', 'obnl_vhost', 'obnl', 'obnl', '../data/A.json',
                        data_a,
-                       output_attributes=['ta'], input_attributes=['seta'], is_first=True)
-    b = ClientTestNode('localhost', 'obnl_vhost', 'obnl', 'obnl', 'test/data/B.json',
+                       output_attributes=['t'], input_attributes=['seta'], is_first=True)
+    b = ClientTestNode('localhost', 'obnl_vhost', 'obnl', 'obnl', '../data/B.json',
                        data_b,
-                       output_attributes=['tb'])
-    c = ClientTestNode('localhost', 'obnl_vhost', 'obnl', 'obnl', 'test/data/C.json',
+                       output_attributes=['t'])
+    c = ClientTestNode('localhost', 'obnl_vhost', 'obnl', 'obnl', '../data/C.json',
                        data_c,
                        input_attributes=['t1', 't2'], output_attributes=['setc'])
 

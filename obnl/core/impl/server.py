@@ -90,7 +90,7 @@ class Scheduler(Node):
                                  queue=Scheduler.DATA + node_in)
         if node_in not in self._links:
             self._links[node_in] = {}
-        self._links[node_in][attr_out] = attr_in
+        self._links[node_in][node_out+'.'+attr_out] = attr_in
 
     def create_simulation_links(self, node, position):
         """
@@ -168,9 +168,10 @@ class Scheduler(Node):
 
         sc = SchedulerConnection()
         sc.simulation = self._simulation
+        print(self._links)
         if node_name in self._links:
             for k, v in self._links[node_name].items():
-                sc.attribute_links[node_name+'.'+k] = v
+                sc.attribute_links[k] = v
 
         self.reply_to(reply_to, sc)
 

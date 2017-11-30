@@ -2,11 +2,11 @@
   "nodes": {
     "A": {
       "inputs": ["seta"],
-      "outputs": ["ta"]
+      "outputs": ["t"]
     },
     "B": {
       "inputs": [],
-      "outputs": ["tb"]
+      "outputs": ["t"]
     },
     "C": {
       "inputs": ["t1", "t2"],
@@ -17,7 +17,7 @@
     {
       "output": {
         "node":"A",
-        "attribute": "ta"
+        "attribute": "t"
       },
       "input": {
         "node":"C",
@@ -27,7 +27,7 @@
     {
       "output": {
         "node": "B",
-        "attribute": "tb"
+        "attribute": "t"
       },
       "input": {
         "node": "C",
