@@ -170,7 +170,7 @@ class Scheduler(Node):
         sc.simulation = self._simulation
         if node_name in self._links:
             for k, v in self._links[node_name].items():
-                sc.attribute_links[k] = v
+                sc.attribute_links[node_name+'.'+k] = v
 
         self.reply_to(reply_to, sc)
 

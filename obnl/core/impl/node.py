@@ -178,6 +178,7 @@ class ClientNode(Node):
         elif mm.details.Is(Quit.DESCRIPTOR):
             Node.LOGGER.info(self.name+" disconnected!")
             self._channel.basic_ack(delivery_tag=method.delivery_tag)
+            self._channel.close()
             sys.exit(0)
 
         self._channel.basic_ack(delivery_tag=method.delivery_tag)
@@ -190,7 +191,7 @@ class ClientNode(Node):
             am = AttributeMessage()
             mm.details.Unpack(am)
 
-            Node.LOGGER.debug("Received attribute: "+am.attribute_name+','+str(am.attribute_value))
+            Node.LOGGER.debug("Received attribute: "+am.attribute_name+' ('+str(am.attribute_value)+')')
 
             self._input_values[self._links[am.attribute_name]] = am.attribute_value
         self.send_local(mm.details)
