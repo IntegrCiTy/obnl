@@ -189,6 +189,9 @@ class ClientNode(Node):
         if mm.details.Is(AttributeMessage.DESCRIPTOR):
             am = AttributeMessage()
             mm.details.Unpack(am)
+
+            Node.LOGGER.debug("Received attribute: "+am.attribute_name+','+str(am.attribute_value))
+
             self._input_values[self._links[am.attribute_name]] = am.attribute_value
         self.send_local(mm.details)
 
