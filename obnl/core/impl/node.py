@@ -75,7 +75,7 @@ class Node(ConnectionNode):
         :param message: the protobuf message
         :param reply_to: the routing key to reply to
         """
-        self.LOGGER.debug('-->' + routing)
+        self.LOGGER.debug(' ----> ' + routing)
         self.send(Node.SIMULATION + self.name, routing, message, reply_to=reply_to)
 
 
@@ -138,9 +138,6 @@ class ClientNode(Node):
                                   body=m.SerializeToString())
 
     def on_local(self, ch, method, props, body):
-        Node.LOGGER.debug(self._next_step)
-        Node.LOGGER.debug(self._input_attributes)
-        Node.LOGGER.debug(self._input_values)
         if self._next_step \
                 and (self._is_first
                      or not self._input_attributes
