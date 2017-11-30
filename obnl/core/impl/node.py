@@ -140,7 +140,7 @@ class ClientNode(Node):
     def on_local(self, ch, method, props, body):
         Node.LOGGER.debug(self._next_step)
         Node.LOGGER.debug(self._input_attributes)
-        Node.LOGGER.debug(len(self._input_values.keys()) == len(self._input_attributes))
+        Node.LOGGER.debug(self._input_values)
         if self._next_step \
                 and (self._is_first
                      or not self._input_attributes
