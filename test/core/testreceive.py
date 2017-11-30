@@ -21,10 +21,11 @@ class ClientTestNode(ClientNode):
         print(self.name, self.input_values)
 
         for o in self.output_attributes:
-            rv = self._data[0 % len(self._data)]
+            rv = self._data[self._i % len(self._data)]
             print(self.name, o, ':', rv)
             self.update_attribute(o, rv)
         print('=============')
+        self._i += 1
 
 
 if __name__ == "__main__":
