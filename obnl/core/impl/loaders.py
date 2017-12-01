@@ -77,6 +77,10 @@ class JSONLoader(Loader):
             in_data = data["input"]
             out_data = data["output"]
             in_node = self._find_in_nodes(in_data['node'])
+            if in_node is None:
+                raise AttributeError("The input node "+in_data['node']+" is not initialised.")
             out_node = self._find_in_nodes(out_data['node'])
+            if in_node is None:
+                raise AttributeError("The out node "+out_data['node']+" is not initialised.")
 
             self._scheduler.create_data_link(out_node, out_data['attribute'], in_node, in_data['attribute'])
