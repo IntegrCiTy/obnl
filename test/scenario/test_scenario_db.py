@@ -2,8 +2,8 @@ import unittest
 
 from datetime import datetime
 
-from obnl.scenario import *
-from obnl.scenario.db import *
+from scenario import *
+from scenario.db import *
 
 import sqlalchemy.orm.exc
 

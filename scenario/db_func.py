@@ -1,6 +1,7 @@
 from sqlalchemy.sql import func
 
 
+### For some reason this function does not work ...
 # def func_cleanup_schema():
 #     """
 #     Define function call to clean-up schema.
@@ -23,7 +24,6 @@ def func_insert_simulation( scenario ):
         None, # time_stop (timestamp with time zone)
         None, # time_interval (numeric)
         None, # time_interval_unit (character varying)
-        None, # scenario_id (integer)
         None, # creator_name (character varying)
         None  # creation_date (date)
         )
@@ -50,8 +50,8 @@ def func_insert_port( node_id, type, port_name ):
     Define function call to insert input port to database.
     """
     return func.sim_pkg.insert_port(
-        node_id, # node_id (integer)
         type, # type (character varying)
+        node_id, # node_id (integer)
         None, # id (integer)
         None, # gmlid (character varying)
         None, # gmlid_codespace (character varying)

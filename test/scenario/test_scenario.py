@@ -1,5 +1,5 @@
-from obnl.scenario import *
-from obnl.scenario.json import *
+from scenario import *
+from scenario.json import *
 import unittest
 
 

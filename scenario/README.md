@@ -26,7 +26,7 @@ pip install sqlalchemy
 The Scenario Package represents all the relevant parts of a scenario as individual objects, using for example instances of class `Scenario`, class `Node` or class `Link`.
 The definition of a scenario typically starts with an instance of class `Scenario`, which serves as a container for all other objects (nodes, links, etc.). In the following, a scenario called `TestScenario` is used:
 ```python
-from obnl.scenario import *
+from scenario import *
 
 scenario = Scenario( 'TestScenario' )
 ```
@@ -57,7 +57,7 @@ The lines above create three links:
 
 All together, the full Python code to define the scenario would look like this:
 ```python
-from obnl.scenario import *
+from scenario import *
 
 scenario = Scenario( 'TestScenario' )
 
@@ -78,7 +78,7 @@ However, it is also possible to define nodes and links as individual objects and
 This is done in the follwing example, which creates the same scenario as in the previous example.
 
 ```python
-from obnl.scenario import *
+from scenario import *
 
 nodeA = Node( 'A', input_variable_names = [ 'seta' ], output_variable_names = [ 'ta' ] )
 nodeB = Node( 'B', output_variable_names = [ 'tb' ] )
@@ -106,7 +106,7 @@ This is done in a way that is compatible with the scenario input files required 
 
 For instance, saving a scenario to a JSON file is done with the help of the `dump_to_json_file` function:
 ```python
-from obnl.scenario.json import *
+from scenario.json import *
 
 dump_to_json_file(
     scenario,
@@ -115,7 +115,7 @@ dump_to_json_file(
 ```
 Similarly, reading a scenario from a JSON file is done via the `read_from_json_file` function:
 ```python
-from obnl.scenario.json import *
+from scenario.json import *
 
 scenario = read_from_json_file( 
     file_name = 'json.txt',
@@ -130,7 +130,7 @@ Scenarios can written to and read from a database that implements the CityGML 3D
 The first step is to define the connection parameters for the PostgreSQL database.
 This can be done via an instance of `PostgreSQLConnectionInfo`:
 ```python
-from obnl.scenario.db import *
+from scenario.db import *
 
 connect = PostgreSQLConnectionInfo( 
     user = 'postgres',
