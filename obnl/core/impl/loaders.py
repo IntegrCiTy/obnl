@@ -42,11 +42,11 @@ class JSONLoader(Loader):
         "links":{
             "LinkName1":{
                 "out":{
-                    "node": "NameNodeN"  # MUST be is "nodes"
+                    "node": "NameNodeN"  # MUST be in "nodes"
                     "attr": "AttributeName"
                 },
                 "in":{
-                    "node": "NameNodeN"  # MUST be is "nodes"
+                    "node": "NameNodeN"  # MUST be in "nodes"
                     "attr": "AttributeName"
                 }
             },
