@@ -1,3 +1,4 @@
+from obnl.core.impl.logs import logger
 from threading import Thread
 
 from obnl.core.impl.node import ClientNode as _ClientNodeImpl
@@ -7,12 +8,13 @@ class ClientNode(object):
 
     def __init__(self, host, vhost, username, password, config_file, input_attributes=None, output_attributes=None, is_first=False):
         self._node_impl = _ClientNodeImpl(host, vhost, username, password, self, config_file, input_attributes, output_attributes, is_first)
+        logger.debug("New ClientNode")
 
     @property
     def name(self):
         """
         
-        :return: the node name. It is the ID of the Node inside the simulation 
+        :return: the node name. It is the ID of the Node inside the simulation
         """
         return self._node_impl.name
 
@@ -51,6 +53,7 @@ class ClientNode(object):
         """
         Starts the listening
         """
+        logger.debug("{} starts listening (new Thread)".format(self.name))
         Thread(target=self._node_impl.start).start()
 
     def step(self, current_time, time_step):
@@ -71,3 +74,4 @@ class ClientNode(object):
         :param value: the new value of the attribute
         """
         self._node_impl.update_attribute(attr, value)
+        logger.debug("{} send attribute {} update {}".format(self.name, attr, value))

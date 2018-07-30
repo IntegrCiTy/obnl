@@ -1,6 +1,6 @@
-import logging
-import logging.handlers
 import time
+
+from obnl.core.impl.logs import logger
 
 from obnl.core.impl.loaders import JSONLoader
 from obnl.core.impl.node import Node
@@ -15,8 +15,7 @@ class Scheduler(Node):
     """
 
     def __init__(self, host, vhost, username, password, config_file,
-                 simu_data, schedule_data,
-                 log_level=logging.INFO):
+                 simu_data, schedule_data):
         """
         
         :param host: the AMQP host 
@@ -24,7 +23,6 @@ class Scheduler(Node):
         :param simu_data: a dict containing connections
         :param schedule_data: a dict containing schedule blocks
         """
-        self.activate_console_logging(log_level)
         super(Scheduler, self).__init__(host, vhost, username, password, config_file)
 
         self._current_step = 0
@@ -50,7 +48,7 @@ class Scheduler(Node):
         steps = schedule_data['steps']
         blocks = schedule_data['schedule']
         self._simulation = schedule_data['simulation_name']
-        Scheduler.LOGGER.debug("Simulation '" + str(self.simulation) + "' loaded")
+        logger.debug("Simulation '" + str(self.simulation) + "' loaded")
 
         # Currently only JSON can be loaded
         # Load all the Nodes and creates the associated links
@@ -73,6 +71,7 @@ class Scheduler(Node):
         self._current_step = 0
         self._current_block = 0
         super(Scheduler, self).start()
+        logger.debug("Scheduler starts listening")
 
     def create_data_link(self, node_out, attr_out, node_in, attr_in):
         """
@@ -91,6 +90,7 @@ class Scheduler(Node):
         if node_in not in self._links:
             self._links[node_in] = {}
         self._links[node_in][node_out+'.'+attr_out] = attr_in
+        logger.debug("Data link created {} {} -> {} {}".format(node_out, attr_out, node_in, attr_in))
 
     def create_simulation_links(self, node, position):
         """
@@ -109,6 +109,7 @@ class Scheduler(Node):
         self._channel.queue_bind(exchange=Scheduler.SIMULATION + self.name,
                                  routing_key=Scheduler.SIMULATION + self._name,
                                  queue=Scheduler.SIMULATION + self._name)
+        logger.debug("Simulation link created {} {}".format(node, position))
 
     def _update_time(self):
         """
@@ -117,7 +118,7 @@ class Scheduler(Node):
         ns = NextStep()
         ns.time_step = self._steps[self._current_step]
         ns.current_time = self._current_time
-        Scheduler.LOGGER.debug("Current step is " + str(self._current_time))
+        logger.debug("Current step is " + str(self._current_time))
 
         self.send_simulation(Scheduler.UPDATE_ROUTING + str(self._current_block),
                              ns, reply_to=Scheduler.SIMULATION + self.name)
@@ -131,32 +132,35 @@ class Scheduler(Node):
 
         if m.details.Is(SimulatorConnection.DESCRIPTOR):
             self._simulator_connection(m, props.reply_to)
-            Scheduler.LOGGER.info("Simulator " + m.node_name + " is connected.")
+            logger.info("Simulator " + m.node_name + " is connected.")
             if len(self._connected) == sum([len(b) for b in self._blocks]):
-                Scheduler.LOGGER.info("Start simulation.")
+                logger.info("Start simulation.")
                 self._begin_time = time.time()
                 self._current_time += self._steps[self._current_step]
                 self._update_time()
 
         if m.details.Is(NextStep.DESCRIPTOR):
             if m.node_name in self._blocks[self._current_block]:
+                logger.debug("Add {}".format(m.node_name))
                 self._sent.add(m.node_name)
 
         if len(self._connected) == sum([len(b) for b in self._blocks]):
             # block management
             if len(self._sent) == len(self._blocks[self._current_block]):
                 self._current_block = (self._current_block + 1) % len(self._blocks)
+                logger.debug("New current block {}".format(self._current_block))
                 if self._current_block == 0:
                     self._current_step += 1
                     if self._current_step >= len(self._steps):
                         self.broadcast_simulation(Quit())
-                        Scheduler.LOGGER.info("Simulation finished. Execution time: " +
+                        logger.info("Simulation finished. Execution time: " +
                                               str(time.time() - self._begin_time)
                                               + " seconds")
                         self._channel.basic_ack(delivery_tag=method.delivery_tag)
                         sys.exit(0)
                     else:
                         self._current_time += self._steps[self._current_step]
+                        logger.debug("New current time {}".format(self._current_time))
                 self._update_time()
                 self._sent.clear()
 
@@ -176,6 +180,6 @@ class Scheduler(Node):
         self.reply_to(reply_to, sc)
 
     def broadcast_simulation(self, message, reply_to=None):
-
+        logger.debug("Simulation broadcast {}".format(message))
         for block_id in range(len(self._blocks)):
             self.send_simulation(Scheduler.UPDATE_ROUTING + str(block_id), message, reply_to=reply_to)
