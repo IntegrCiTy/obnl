@@ -17,7 +17,7 @@ class Node(ConnectionNode):
     DATA = "obnl.data.node."
     LOCAL = "obnl.local.node."
 
-    UPDATE_ROUTING = 'obnl.update.block.'
+    UPDATE_ROUTING = "obnl.update.block."
     """Base of every routing key for block messages (followed by the number/position of the block)"""
 
     def __init__(self, host, vhost, username, password, config_file="obnl.json"):
@@ -68,7 +68,7 @@ class Node(ConnectionNode):
 
             m.details.Pack(message)
 
-            super().send(exchange='', routing=reply_to, message=m.SerializeToString())
+            super().send(exchange="", routing=reply_to, message=m.SerializeToString())
 
     def send_simulation(self, routing, message, reply_to=None):
         """
@@ -77,13 +77,23 @@ class Node(ConnectionNode):
         :param message: the protobuf message
         :param reply_to: the routing key to reply to
         """
-        logger.debug(' ----> ' + routing)
+        logger.debug(" ----> " + routing)
         self.send(Node.SIMULATION + self.name, routing, message, reply_to=reply_to)
 
 
 class ClientNode(Node):
-
-    def __init__(self, host, vhost, username, password, api, config_file="client.json", input_attributes=None, output_attributes=None, is_first=False):
+    def __init__(
+        self,
+        host,
+        vhost,
+        username,
+        password,
+        api,
+        config_file="client.json",
+        input_attributes=None,
+        output_attributes=None,
+        is_first=False,
+    ):
         super(ClientNode, self).__init__(host, vhost, username, password, config_file)
 
         self._api_node = api
@@ -101,7 +111,7 @@ class ClientNode(Node):
 
         si = SimulatorConnection()
 
-        self.send_simulation(ClientNode.SIMULATION + 'scheduler', si, reply_to=ClientNode.SIMULATION + self.name)
+        self.send_simulation(ClientNode.SIMULATION + "scheduler", si, reply_to=ClientNode.SIMULATION + self.name)
         logger.debug("ClientNode {} created".format(self.name))
 
     @property
@@ -136,19 +146,18 @@ class ClientNode(Node):
         m.details.Pack(am)
 
         if self._output_attributes:
-            self._channel.publish(exchange=ClientNode.DATA + self._name,
-                                  routing_key=ClientNode.DATA + attr,
-                                  body=m.SerializeToString())
+            self._channel.publish(
+                exchange=ClientNode.DATA + self._name, routing_key=ClientNode.DATA + attr, body=m.SerializeToString()
+            )
 
         logger.debug("{} {} attribute updated to {}".format(self.name, attr, values))
 
     def on_local(self, ch, method, props, body):
-        if self._next_step \
-                and (self._is_first
-                     or not self._input_attributes
-                     or len(self._input_values.keys()) == len(self._input_attributes)):
+        if self._next_step and (
+            self._is_first or not self._input_attributes or len(self._input_values.keys()) == len(self._input_attributes)
+        ):
             # TODO: call updateX or updateY depending on the meta content
-            logger.debug(self.name+" step running.")
+            logger.debug(self.name + " step running.")
             self.step(self._current_time, self._time_step)
             self._next_step = False
             self._input_values.clear()
@@ -176,9 +185,9 @@ class ClientNode(Node):
             mm.details.Unpack(sc)
             self._simulation = sc.simulation
             self._links = dict(sc.attribute_links)
-            logger.debug(self.name + " connected to simulation '" + self.simulation+"'")
+            logger.debug(self.name + " connected to simulation '" + self.simulation + "'")
         elif mm.details.Is(Quit.DESCRIPTOR):
-            logger.info(self.name+" disconnected!")
+            logger.info(self.name + " disconnected!")
             self._channel.basic_ack(delivery_tag=method.delivery_tag)
             self._channel.close()
             sys.exit(0)
@@ -193,9 +202,9 @@ class ClientNode(Node):
             am = AttributeMessage()
             mm.details.Unpack(am)
 
-            logger.debug("Received attribute: "+am.attribute_name+' ('+str(am.attribute_value)+')')
+            logger.debug("Received attribute: " + am.attribute_name + " (" + str(am.attribute_value) + ")")
 
-            self._input_values[self._links[mm.node_name+'.'+am.attribute_name]] = am.attribute_value
+            self._input_values[self._links[mm.node_name + "." + am.attribute_name]] = am.attribute_value
         self.send_local(mm.details)
 
         self._channel.basic_ack(delivery_tag=method.delivery_tag)
@@ -206,7 +215,7 @@ class ClientNode(Node):
 
         :param message: a protobuf message 
         """
-        self.send('', ClientNode.LOCAL + self._name, message)
+        self.send("", ClientNode.LOCAL + self._name, message)
         logger.debug("Node {} send {} to local".format(self._name, message))
 
     def send_scheduler(self, message):
@@ -215,5 +224,5 @@ class ClientNode(Node):
 
         :param message: a protobuf message 
         """
-        self.send('', ClientNode.SIMULATION + Node.SCHEDULER_NAME, message)
+        self.send("", ClientNode.SIMULATION + Node.SCHEDULER_NAME, message)
         logger.debug("Node {} send {} to scheduler".format(Node.SCHEDULER_NAME, message))

@@ -1,4 +1,3 @@
-
 class Loader(object):
     """
     Base class of every Loaders
@@ -54,13 +53,14 @@ class JSONLoader(Loader):
         }
     }   
     """
+
     def __init__(self, scheduler, config_data):
         super(JSONLoader, self).__init__(scheduler)
 
         # load the nodes
-        self._prepare_nodes(config_data['nodes'])
+        self._prepare_nodes(config_data["nodes"])
         # then the links
-        self._prepare_links(config_data['links'])
+        self._prepare_links(config_data["links"])
 
     def _find_in_nodes(self, str_node):
         for node in self._nodes:
@@ -76,11 +76,11 @@ class JSONLoader(Loader):
         for data in links:
             in_data = data["input"]
             out_data = data["output"]
-            in_node = self._find_in_nodes(in_data['node'])
+            in_node = self._find_in_nodes(in_data["node"])
             if in_node is None:
-                raise AttributeError("The input node "+in_data['node']+" is not initialised.")
-            out_node = self._find_in_nodes(out_data['node'])
+                raise AttributeError("The input node " + in_data["node"] + " is not initialised.")
+            out_node = self._find_in_nodes(out_data["node"])
             if in_node is None:
-                raise AttributeError("The out node "+out_data['node']+" is not initialised.")
+                raise AttributeError("The out node " + out_data["node"] + " is not initialised.")
 
-            self._scheduler.create_data_link(out_node, out_data['attribute'], in_node, in_data['attribute'])
+            self._scheduler.create_data_link(out_node, out_data["attribute"], in_node, in_data["attribute"])

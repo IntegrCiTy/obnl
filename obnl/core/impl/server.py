@@ -14,8 +14,7 @@ class Scheduler(Node):
     The Scheduler is a Node that manage the time flow.
     """
 
-    def __init__(self, host, vhost, username, password, config_file,
-                 simu_data, schedule_data):
+    def __init__(self, host, vhost, username, password, config_file, simu_data, schedule_data):
         """
         
         :param host: the AMQP host 
@@ -45,9 +44,9 @@ class Scheduler(Node):
         """
 
         # Currently only JSON can be loaded
-        steps = schedule_data['steps']
-        blocks = schedule_data['schedule']
-        self._simulation = schedule_data['simulation_name']
+        steps = schedule_data["steps"]
+        blocks = schedule_data["schedule"]
+        self._simulation = schedule_data["simulation_name"]
         logger.debug("Simulation '" + str(self.simulation) + "' loaded")
 
         # Currently only JSON can be loaded
@@ -84,12 +83,12 @@ class Scheduler(Node):
         """
         self._channel.queue_declare(queue=Scheduler.DATA + node_in)
         self._channel.exchange_declare(exchange=Scheduler.DATA + node_out)
-        self._channel.queue_bind(exchange=Scheduler.DATA + node_out,
-                                 routing_key=Scheduler.DATA + attr_out,
-                                 queue=Scheduler.DATA + node_in)
+        self._channel.queue_bind(
+            exchange=Scheduler.DATA + node_out, routing_key=Scheduler.DATA + attr_out, queue=Scheduler.DATA + node_in
+        )
         if node_in not in self._links:
             self._links[node_in] = {}
-        self._links[node_in][node_out+'.'+attr_out] = attr_in
+        self._links[node_in][node_out + "." + attr_out] = attr_in
         logger.debug("Data link created {} {} -> {} {}".format(node_out, attr_out, node_in, attr_in))
 
     def create_simulation_links(self, node, position):
@@ -101,14 +100,18 @@ class Scheduler(Node):
         """
         self._channel.queue_declare(queue=Scheduler.SIMULATION + node)
         self._channel.exchange_declare(exchange=Scheduler.SIMULATION + self.name)
-        self._channel.queue_bind(exchange=Scheduler.SIMULATION + self.name,
-                                 routing_key=Scheduler.UPDATE_ROUTING + str(position),
-                                 queue=Scheduler.SIMULATION + node)
+        self._channel.queue_bind(
+            exchange=Scheduler.SIMULATION + self.name,
+            routing_key=Scheduler.UPDATE_ROUTING + str(position),
+            queue=Scheduler.SIMULATION + node,
+        )
 
         self._channel.queue_declare(queue=Scheduler.SIMULATION + self._name)
-        self._channel.queue_bind(exchange=Scheduler.SIMULATION + self.name,
-                                 routing_key=Scheduler.SIMULATION + self._name,
-                                 queue=Scheduler.SIMULATION + self._name)
+        self._channel.queue_bind(
+            exchange=Scheduler.SIMULATION + self.name,
+            routing_key=Scheduler.SIMULATION + self._name,
+            queue=Scheduler.SIMULATION + self._name,
+        )
         logger.debug("Simulation link created {} {}".format(node, position))
 
     def _update_time(self):
@@ -120,8 +123,9 @@ class Scheduler(Node):
         ns.current_time = self._current_time
         logger.debug("Current step is " + str(self._current_time))
 
-        self.send_simulation(Scheduler.UPDATE_ROUTING + str(self._current_block),
-                             ns, reply_to=Scheduler.SIMULATION + self.name)
+        self.send_simulation(
+            Scheduler.UPDATE_ROUTING + str(self._current_block), ns, reply_to=Scheduler.SIMULATION + self.name
+        )
 
     def on_simulation(self, ch, method, props, body):
         """
@@ -153,9 +157,9 @@ class Scheduler(Node):
                     self._current_step += 1
                     if self._current_step >= len(self._steps):
                         self.broadcast_simulation(Quit())
-                        logger.info("Simulation finished. Execution time: " +
-                                              str(time.time() - self._begin_time)
-                                              + " seconds")
+                        logger.info(
+                            "Simulation finished. Execution time: " + str(time.time() - self._begin_time) + " seconds"
+                        )
                         self._channel.basic_ack(delivery_tag=method.delivery_tag)
                         sys.exit(0)
                     else:

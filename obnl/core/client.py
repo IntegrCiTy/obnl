@@ -5,9 +5,12 @@ from obnl.core.impl.node import ClientNode as _ClientNodeImpl
 
 
 class ClientNode(object):
-
-    def __init__(self, host, vhost, username, password, config_file, input_attributes=None, output_attributes=None, is_first=False):
-        self._node_impl = _ClientNodeImpl(host, vhost, username, password, self, config_file, input_attributes, output_attributes, is_first)
+    def __init__(
+        self, host, vhost, username, password, config_file, input_attributes=None, output_attributes=None, is_first=False
+    ):
+        self._node_impl = _ClientNodeImpl(
+            host, vhost, username, password, self, config_file, input_attributes, output_attributes, is_first
+        )
         logger.debug("New ClientNode")
 
     @property
@@ -64,7 +67,7 @@ class ClientNode(object):
         :param current_time: the current time of the simulation
         :param time_step: the time step from the last call of this function
         """
-        raise NotImplementedError('Abstract function call from '+str(self.__class__))
+        raise NotImplementedError("Abstract function call from " + str(self.__class__))
 
     def update_attribute(self, attr, value):
         """
