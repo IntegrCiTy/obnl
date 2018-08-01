@@ -216,7 +216,7 @@ class ClientNode(Node):
         :param message: a protobuf message 
         """
         self.send("", ClientNode.LOCAL + self._name, message)
-        logger.debug("Node {} send {} to local".format(self._name, message))
+        logger.debug("Node {} send {} to local".format(self._name, "MSG"))
 
     def send_scheduler(self, message):
         """
@@ -225,4 +225,4 @@ class ClientNode(Node):
         :param message: a protobuf message 
         """
         self.send("", ClientNode.SIMULATION + Node.SCHEDULER_NAME, message)
-        logger.debug("Node {} send {} to scheduler".format(Node.SCHEDULER_NAME, message))
+        logger.debug("Node {} send {} to scheduler".format(Node.SCHEDULER_NAME, "MSG"))
