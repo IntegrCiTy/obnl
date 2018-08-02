@@ -35,6 +35,7 @@ class Node(ConnectionNode):
         """
         super().__init__(host, vhost, username, password, config_file)
         self._simulation = None
+        logger.debug("Node initialized")
 
     @property
     def simulation(self):
@@ -53,6 +54,7 @@ class Node(ConnectionNode):
         mm.node_name = self._name
         mm.details.Pack(message)
 
+        logger.debug("Sending over MQTT ...")
         super().send(exchange, routing, mm.SerializeToString(), reply_to)
 
     def reply_to(self, reply_to, message):
@@ -68,6 +70,7 @@ class Node(ConnectionNode):
 
             m.details.Pack(message)
 
+            logger.debug("Replying to {} ...".format(reply_to))
             super().send(exchange="", routing=reply_to, message=m.SerializeToString())
 
     def send_simulation(self, routing, message, reply_to=None):
@@ -150,7 +153,7 @@ class ClientNode(Node):
                 exchange=ClientNode.DATA + self._name, routing_key=ClientNode.DATA + attr, body=m.SerializeToString()
             )
 
-        logger.debug("{} {} attribute updated to {}".format(self.name, attr, values))
+            logger.debug("{} {} attribute updated to {}".format(self.name, attr, value))
 
     def on_local(self, ch, method, props, body):
         if self._next_step and (
@@ -166,6 +169,7 @@ class ClientNode(Node):
             nm.time_step = self._time_step
             self.reply_to(self._reply_to, nm)
 
+        logger.debug("Basic acknowledgment")
         self._channel.basic_ack(delivery_tag=method.delivery_tag)
 
     def on_simulation(self, ch, method, props, body):
@@ -192,6 +196,7 @@ class ClientNode(Node):
             self._channel.close()
             sys.exit(0)
 
+        logger.debug("Basic acknowledgment")
         self._channel.basic_ack(delivery_tag=method.delivery_tag)
 
     def on_data(self, ch, method, props, body):
@@ -207,6 +212,7 @@ class ClientNode(Node):
             self._input_values[self._links[mm.node_name + "." + am.attribute_name]] = am.attribute_value
         self.send_local(mm.details)
 
+        logger.debug("Basic acknowledgment")
         self._channel.basic_ack(delivery_tag=method.delivery_tag)
 
     def send_local(self, message):
