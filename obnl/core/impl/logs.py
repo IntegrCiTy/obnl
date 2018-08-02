@@ -5,11 +5,11 @@ import logging
 
 from logging.handlers import RotatingFileHandler
 
-logger = logging.getLogger()
+logger = logging.getLogger("OBNL")
 logger.setLevel(logging.DEBUG)
 
 file_formatter = logging.Formatter(
-    "%(asctime)s :: %(levelname)s :: %(module)s/%(filename)s :: %(funcName)s :: %(message)s"
+    "%(asctime)s :: %(levelname)s :: %(name)s -> %(filename)s :: %(funcName)s :: %(message)s"
 )
 
 file_handler = RotatingFileHandler("activity.log", "w")
