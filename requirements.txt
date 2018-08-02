@@ -2,5 +2,5 @@
 
 pika >= 0.10
 protobuf >= 3.0
--e git://github.com/IntegrCiTy/connection-util#egg=connection-util >= 0.3.0
+-e git://github.com/IntegrCiTy/connection-util@feature/logger#egg=connection-util >= 0.3.0
 -e git://github.com/IntegrCiTy/messaging#egg=ict-messaging&subdirectory=python >= 0.9.0
